@@ -2,6 +2,17 @@
 
 use Illuminate\Support\Str;
 
+$mysqlSslCa = env('MYSQL_ATTR_SSL_CA');
+
+if (! $mysqlSslCa && env('MYSQL_ATTR_SSL_CA_CONTENT')) {
+    $mysqlSslCa = sys_get_temp_dir().DIRECTORY_SEPARATOR.'mysql-ca.pem';
+    $certificate = str_replace('\\n', "\n", env('MYSQL_ATTR_SSL_CA_CONTENT'));
+
+    if (! file_exists($mysqlSslCa) || file_get_contents($mysqlSslCa) !== $certificate) {
+        file_put_contents($mysqlSslCa, $certificate);
+    }
+}
+
 return [
 
     /*
@@ -59,7 +70,7 @@ return [
             'strict' => true,
             'engine' => null,
             'options' => extension_loaded('pdo_mysql') ? array_filter([
-                PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA'),
+                PDO::MYSQL_ATTR_SSL_CA => $mysqlSslCa,
             ]) : [],
         ],
 
