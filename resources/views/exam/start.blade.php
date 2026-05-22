@@ -1,60 +1,58 @@
 @extends('layouts.ap')
 
 @section('content')
-    <div class="container">
-        <h2>Quiz</h2>
-        <h4>Duration: <span id="timer">{{ $duration }}</span> seconds</h4>
-
-        @push('scripts')
-            <script>
-                var duration = {{ $duration }};
-                var timer = document.getElementById('timer');
-
-                function countdown() {
-                    if (duration > 0) {
-                        timer.textContent = duration--;
-                        setTimeout(countdown, 1000);
-                    } else {
-                        // Submit the form automatically when the timer reaches 0
-                        document.getElementById('exam-form').submit();
-                    }
-                }
-
-                document.addEventListener('DOMContentLoaded', countdown);
-            </script>
-        @endpush
-
-        <form id="exam-form" action="{{ route('exam.submit') }}" method="POST">
-            @csrf
-            @php $questionNumber = 1; @endphp
-            @foreach ($questions as $question)
-                <div class="mb-3">
-                    <h5>Question {{ $questionNumber }}:</h5>
-                    <p>{{ $question->question }}</p>
-                    <div class="form-check">
-                        <input class="form-check-input" type="radio" name="answers[{{ $question->id }}]"
-                            value="option_a">
-                        <label class="form-check-label" for="option_a_{{ $question->id }}">{{ $question->option_a }}</label>
-                    </div>
-                    <div class="form-check">
-                        <input class="form-check-input" type="radio" name="answers[{{ $question->id }}]"
-                            value="option_b">
-                        <label class="form-check-label" for="option_b_{{ $question->id }}">{{ $question->option_b }}</label>
-                    </div>
-                    <div class="form-check">
-                        <input class="form-check-input" type="radio" name="answers[{{ $question->id }}]"
-                            value="option_c">
-                        <label class="form-check-label" for="option_c_{{ $question->id }}">{{ $question->option_c }}</label>
-                    </div>
-                    <div class="form-check">
-                        <input class="form-check-input" type="radio" name="answers[{{ $question->id }}]"
-                            value="option_d">
-                        <label class="form-check-label" for="option_d_{{ $question->id }}">{{ $question->option_d }}</label>
-                    </div>
-                </div>
-            @php $questionNumber++; @endphp
-            @endforeach
-            <button type="submit" class="btn btn-primary">Submit</button>
-        </form>
+    <div class="d-flex flex-wrap align-items-center justify-content-between mb-4">
+        <div>
+            <h1 class="h3 mb-1">Start Exam</h1>
+            <p class="text-muted mb-0">Choose one or more subject banks.</p>
+        </div>
     </div>
+
+    <form action="{{ route('exam.store') }}" method="POST">
+        @csrf
+
+        <div class="row">
+            <div class="col-lg-7 mb-4">
+                <div class="selection-card">
+                    <h2 class="h5 mb-3">Subjects</h2>
+
+                    @forelse ($subjects as $subject)
+                        <label class="d-flex align-items-center justify-content-between border rounded p-3 mb-2">
+                            <span>
+                                <input type="checkbox" name="subject_ids[]" value="{{ $subject->id }}"
+                                    {{ in_array($subject->id, old('subject_ids', [])) ? 'checked' : '' }}>
+                                <span class="ml-2 font-weight-bold">{{ $subject->name }}</span>
+                            </span>
+                            <span class="badge badge-secondary">{{ $subject->questions_count }}</span>
+                        </label>
+                    @empty
+                        <div class="alert alert-warning mb-0">No active subjects are available.</div>
+                    @endforelse
+                </div>
+            </div>
+
+            <div class="col-lg-5 mb-4">
+                <div class="selection-card">
+                    <h2 class="h5 mb-3">Question Count & Time</h2>
+
+                    @forelse ($presets as $preset)
+                        <label class="d-flex align-items-center justify-content-between border rounded p-3 mb-2">
+                            <span>
+                                <input type="radio" name="exam_preset_id" value="{{ $preset->id }}"
+                                    {{ (int) old('exam_preset_id') === $preset->id ? 'checked' : '' }}>
+                                <span class="ml-2 font-weight-bold">{{ $preset->label }}</span>
+                            </span>
+                            <span class="text-muted">{{ intdiv($preset->duration_seconds, 60) }} mins</span>
+                        </label>
+                    @empty
+                        <div class="alert alert-warning mb-0">No active duration presets are available.</div>
+                    @endforelse
+                </div>
+            </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary" @if($subjects->isEmpty() || $presets->isEmpty()) disabled @endif>
+            Start Exam
+        </button>
+    </form>
 @endsection

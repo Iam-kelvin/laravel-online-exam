@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
 use App\Models\Role;
+use Illuminate\Validation\Rule;
 use Gate;
 
 class UsersController extends Controller
@@ -21,7 +22,7 @@ class UsersController extends Controller
      */
     public function index()
     {
-        $users = User::all();
+        $users = User::with('roles')->orderBy('name')->get();
         return view('admin.users.index')->with('users', $users);
     }
 
@@ -55,18 +56,66 @@ class UsersController extends Controller
      */
     public function update(Request $request, User $user)
     {
-        $user->roles()->sync($request->roles);
+        if(Gate::denies('edit-users'))
+        {
+            return redirect()->route('users.index');
+        }
 
-        $user->name = $request->name;
-        $user->email = $request->email;
+        $validated = $request->validate([
+            'name' => ['required', 'string', 'max:255'],
+            'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],
+            'roles' => ['array'],
+            'roles.*' => ['exists:roles,id'],
+        ]);
+
+        $emailChanged = $validated['email'] !== $user->email;
+
+        $user->roles()->sync($validated['roles'] ?? []);
+
+        $user->name = $validated['name'];
+        $user->email = $validated['email'];
+
+        if ($emailChanged) {
+            $user->email_verified_at = null;
+        }
         
         if($user->save())
         {
-            $request->session()->flash('success', $user->name . ' updated');
+            if ($emailChanged) {
+                $user->sendEmailVerificationNotification();
+                $request->session()->flash('warning', $user->name . ' updated. A verification email was sent to the new address.');
+            } else {
+                $request->session()->flash('success', $user->name . ' updated');
+            }
         }else{
             $request->session()->flash('error', $user->name . ' not updated');
         }
         
+
+        return redirect()->route('users.index');
+    }
+
+    public function editEmail(User $user)
+    {
+        return view('admin.users.recover-email')->with('user', $user);
+    }
+
+    public function updateEmail(Request $request, User $user)
+    {
+        $validated = $request->validate([
+            'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],
+        ]);
+
+        $user->email = $validated['email'];
+        $user->email_verified_at = null;
+
+        if($user->save())
+        {
+            $user->sendEmailVerificationNotification();
+            $request->session()->flash('warning', $user->name . ' email changed. A fresh verification email was sent.');
+        }else{
+            $request->session()->flash('error', $user->name . ' email was not changed');
+        }
 
         return redirect()->route('users.index');
     }

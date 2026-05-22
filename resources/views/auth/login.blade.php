@@ -1,92 +1,79 @@
-<!DOCTYPE html>
-<html lang="en">
-    <head>
-        <title>Login</title>
-        <meta charset="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <link rel="stylesheet" type="text/css" href="{{url('../assets/css/main.css')}}">
-        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="
-        sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
-        
-    </head>
-    <body class="please">
-  
-             <!-- Header -->
-            <header id="header">
-				<div class="inner">
-					<a href="{{ url('/') }}" class="logo"><strong>Crazy</strong>Exam</a>
-					<nav id="nav">
-                        <a href="{{ url('/') }}">Home</a>
-                        <a href="{{ route('register') }}">Register</a>
-					</nav>
-					<a href="#navPanel" class="navPanelToggle"><span class="fa fa-bars"></span></a>
-				</div>
-			</header>
+<!doctype html>
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Login | CrazyExam</title>
+    <link href="{{ asset('css/app.css') }}" rel="stylesheet">
+    <link href="{{ asset('css/auth.css') }}" rel="stylesheet">
+</head>
+<body class="auth-page">
+    <main class="auth-shell">
+        <section class="auth-story">
+            <div class="auth-story-content">
+                <a href="{{ url('/') }}" class="auth-brand"><strong>Crazy</strong>Exam</a>
+                <h1>Welcome back.</h1>
+                <p>Continue your practice journey, resume an active exam, or review your last result.</p>
+            </div>
+        </section>
 
-    <div id="bann">
-    <div class="login-box">
-        <h1>Login</h1>
+        <section class="auth-panel">
+            <div class="auth-card">
+                <div class="auth-nav">
+                    <a href="{{ url('/') }}">Home</a>
+                    <a href="{{ route('register') }}">Create account</a>
+                </div>
 
-        <form method="POST" action="{{ route('login') }}">
-            @csrf
+                <h2>Login</h2>
+                <p class="auth-helper mb-4">Use your email and password to open your exam dashboard.</p>
 
-        <div class="textbox">
-            <i class="fa fa-user"></i>
-            <input id="email" type="email" class="form-control @error('email') is-invalid @enderror" name="email" value="{{ old('email') }}" required autocomplete="email" placeholder="Email">
-            @error('email')
-                        <span class="invalid-feedback" role="alert">
-                                <strong>{{ $message }}</strong>
-                        </span>
-            @enderror
-        </div>
-
-        <div class="textbox">
-            <i class="fa fa-lock"></i>
-            <input id="password" type="password" class="form-control @error('password') is-invalid @enderror" name="password" required autocomplete="current-password" placeholder="Password">
-            @error('password')
-                        <span class="invalid-feedback" role="alert">
-                                    <strong>{{ $message }}</strong>
-                        </span>
-            @enderror
-        </div>
-
-
-        <div class="form-check">
-		    <input type="radio" class="form-check-input" name="remember" id="remember" {{ old('remember') ? 'checked' : '' }}>
-		    <label class="form-check-label" id="remember" for="remember">{{ __('Keep me signed in') }}</label>
-        </div>
-
-                        
-        <input type="submit" class="btn" value="{{ __('Login') }}">
-
-        @if (Route::has('password.request'))
-        <a href="{{ route('password.request') }}"><input type="button" class="btn" href="{{ route('password.request') }}" value="{{ __('Forgot Password') }}"></a>
-        @endif
-                                   
-        
-        <!-- <footer>
-                @if (Route::has('password.request'))
-			<a class="button" href="{{ route('password.request') }}">{{ __('Forgot Password') }}</a>
+                @if (session('status'))
+                    <div class="alert alert-success" role="alert">
+                        {{ session('status') }}
+                    </div>
                 @endif
-		</footer> -->
 
-            <!-- @if (Route::has('password.request'))
-        <input type="submit" class="btn btn-link" href="{{ route('password.request') }}" value="{{ __('Forgot Your Password?') }}">
-            @endif -->
-                           
-        </form>
-    </div>
-    </div>
+                <form method="POST" action="{{ route('login') }}">
+                    @csrf
 
-<!-- Scripts -->
-<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
-		<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
-		<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js" integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV" crossorigin="anonymous"></script>
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input id="email" type="email" class="form-control @error('email') is-invalid @enderror"
+                            name="email" value="{{ old('email') }}" required autocomplete="email" autofocus>
+                        @error('email')
+                            <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
+                        @enderror
+                    </div>
 
-		<!-- Scripts -->
-			<script src="assets/js/jquery.min.js"></script>
-			<script src="assets/js/skel.min.js"></script>
-			<script src="assets/js/util.js"></script>
-			<script src="assets/js/main.js"></script>		
-    </body>
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <div class="password-input">
+                            <input id="password" type="password" class="form-control @error('password') is-invalid @enderror"
+                                name="password" required autocomplete="current-password" data-password-toggle>
+                            <button type="button" class="password-toggle" data-password-toggle-button aria-label="Show password" aria-pressed="false">Show</button>
+                        </div>
+                        @error('password')
+                            <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
+                        @enderror
+                    </div>
+
+                    <div class="d-flex flex-wrap align-items-center justify-content-between mb-4">
+                        <div class="form-check">
+                            <input type="checkbox" class="form-check-input" name="remember" id="remember"
+                                {{ old('remember') ? 'checked' : '' }}>
+                            <label class="form-check-label" for="remember">Keep me signed in</label>
+                        </div>
+
+                        @if (Route::has('password.request'))
+                            <a href="{{ route('password.request') }}">Forgot password?</a>
+                        @endif
+                    </div>
+
+                    <button type="submit" class="btn btn-success btn-block">Login</button>
+                </form>
+            </div>
+        </section>
+    </main>
+    <script src="{{ asset('js/password-toggle.js') }}" defer></script>
+</body>
 </html>

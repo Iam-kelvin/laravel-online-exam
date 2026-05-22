@@ -2,12 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use App\Models\Createmath;
-use App\Models\Createhistory;
-use App\Models\Math;
-use App\Models\History;
-use App\Models\Mathanswer;
+use App\Models\ExamPreset;
+use App\Models\Subject;
 
 class HomeController extends Controller
 {
@@ -28,55 +24,37 @@ class HomeController extends Controller
      */
     public function index()
     {
-        return view('home');
-    }
+        $user = auth()->user();
+        $recentAttempts = $user->examAttempts()
+            ->with('subjects')
+            ->latest()
+            ->take(5)
+            ->get();
 
-    public function exam()
-    {
-        return view('exam');
-    }
+        $completedAttempts = $user->examAttempts()->whereNotNull('submitted_at')->count();
+        $inProgressAttempt = $user->examAttempts()
+            ->whereNull('submitted_at')
+            ->where('ends_at', '>', now())
+            ->latest()
+            ->first();
+        $totalScore = $user->examAttempts()->whereNotNull('submitted_at')->sum('score');
+        $totalQuestions = $user->examAttempts()->whereNotNull('submitted_at')->sum('question_count');
+        $bestAttempt = $user->examAttempts()
+            ->whereNotNull('submitted_at')
+            ->orderByDesc('score')
+            ->latest()
+            ->first();
 
-    public function examcreate()
-    {
-        return view('new');
-    }
-
-    public function exammath()
-    {
-        // $id = $request->input('id');
-        $id = 4;
-        // $findcourse = Math::where('id','=',$id)->value('id');
-        // $findtime = Math::where('id','=',$id)->value('id');
-        $course = Math::where('id','=',$id)->value('Course');
-        $time = Math::where('id','=',$id)->value('time');
-        $questions = Createmath::where('math_id', $id)->get();
-        return view('/examm/math')->with('createmaths', $questions)->with('Course', $course)->with('time', $time);
-    }
-
-    public function examhistory()
-    {
-        // $id = $request->input('id');
-        $id = 2;
-        // $findcourse = Math::where('id','=',$id)->value('id');
-        // $findtime = Math::where('id','=',$id)->value('id');
-        $course = History::where('id','=',$id)->value('Course');
-        $time = History::where('id','=',$id)->value('time');
-        $questions = Createhistory::where('history_id', $id)->get();
-        return view('/examm/history')->with('createhistories', $questions)->with('Course', $course)->with('time', $time);
-    }
-
-    public function math()
-    {
-        return view('questions/math');
-    }
-
-    public function history()
-    {
-        return view('questions/history');
-    }
-
-    public function show()
-    {
-        return view('show');
+        return view('home', [
+            'stats' => [
+                'completed_attempts' => $completedAttempts,
+                'average_score' => $totalQuestions > 0 ? round(($totalScore / $totalQuestions) * 100) : null,
+                'best_score' => $bestAttempt ? "{$bestAttempt->score} / {$bestAttempt->question_count}" : null,
+                'in_progress_attempt_id' => optional($inProgressAttempt)->id,
+            ],
+            'subjects' => Subject::withCount('questions')->where('active', true)->orderBy('name')->take(8)->get(),
+            'presets' => ExamPreset::where('active', true)->orderBy('question_count')->get(),
+            'recentAttempts' => $recentAttempts,
+        ]);
     }
 }

@@ -1,27 +1,50 @@
 @extends('layouts.ap')
 
 @section('content')
-    <div class="container">
-        <h2>Exam Results</h2>
-        <table class="table table-bordered">
-            <thead>
-                <tr>
-                    <th>Attempt ID</th>
-                    <th>Score</th>
-                    <th>Duration Used</th>
-                    <th>Attempted At</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach ($examResults as $examResult)
+    <div class="d-flex flex-wrap align-items-center justify-content-between mb-4">
+        <div>
+            <h1 class="h3 mb-1">Exam Results</h1>
+            <p class="text-muted mb-0">Your submitted attempts.</p>
+        </div>
+        <a href="{{ route('exam.start') }}" class="btn btn-primary mt-3 mt-md-0">Take Exam</a>
+    </div>
+
+    <div class="card">
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
                     <tr>
-                        <td>{{ $examResult->id }}</td>
-                        <td>{{ $examResult->score }}</td>
-                        <td>{{ $examResult->duration }} seconds</td>
-                        <td>{{ $examResult->created_at }}</td>
+                        <th>Attempt</th>
+                        <th>Subjects</th>
+                        <th>Score</th>
+                        <th>Questions</th>
+                        <th>Duration</th>
+                        <th>Submitted</th>
                     </tr>
-                @endforeach
-            </tbody>
-        </table>
+                </thead>
+                <tbody>
+                    @forelse ($examAttempts as $attempt)
+                        <tr>
+                            <td>#{{ $attempt->id }}</td>
+                            <td>{{ $attempt->subjects->pluck('name')->join(', ') }}</td>
+                            <td>
+                                @if($attempt->submitted_at)
+                                    {{ $attempt->score }} / {{ $attempt->question_count }}
+                                @else
+                                    Pending
+                                @endif
+                            </td>
+                            <td>{{ $attempt->question_count }}</td>
+                            <td>{{ intdiv($attempt->duration_seconds, 60) }} mins</td>
+                            <td>{{ optional($attempt->submitted_at)->format('M j, Y g:i A') ?? 'Not submitted' }}</td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="6" class="text-center text-muted py-4">No exam attempts yet.</td>
+                        </tr>
+                    @endforelse
+                </tbody>
+            </table>
+        </div>
     </div>
 @endsection

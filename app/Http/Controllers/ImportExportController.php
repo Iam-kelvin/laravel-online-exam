@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Exports\BulkExport;
 use App\Imports\BulkImport;
 use Maatwebsite\Excel\Facades\Excel;
 

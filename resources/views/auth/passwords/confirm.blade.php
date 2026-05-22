@@ -1,99 +1,58 @@
-
-
-@section('content')
-<div class="container">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card">
-                <div class="card-header">{{ __('Confirm Password') }}</div>
-
-                <div class="card-body">
-                    {{ __('Please confirm your password before continuing.') }}
-
-                    <form method="POST" action="{{ route('password.confirm') }}">
-                        @csrf
-
-                        <div class="form-group row">
-                            <label for="password" class="col-md-4 col-form-label text-md-right">{{ __('Password') }}</label>
-
-                            <div class="col-md-6">
-                                <input id="password" type="password" class="form-control @error('password') is-invalid @enderror" name="password" required autocomplete="current-password">
-
-                                @error('password')
-                                    <span class="invalid-feedback" role="alert">
-                                        <strong>{{ $message }}</strong>
-                                    </span>
-                                @enderror
-                            </div>
-                        </div>
-
-                        <div class="form-group row mb-0">
-                            <div class="col-md-8 offset-md-4">
-                                <button type="submit" class="btn btn-primary">
-                                    {{ __('Confirm Password') }}
-                                </button>
-
-                                @if (Route::has('password.request'))
-                                    <a class="btn btn-link" href="{{ route('password.request') }}">
-                                        {{ __('Forgot Your Password?') }}
-                                    </a>
-                                @endif
-                            </div>
-                        </div>
-                    </form>
-                </div>
+<!doctype html>
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Confirm Password | CrazyExam</title>
+    <link href="{{ asset('css/app.css') }}" rel="stylesheet">
+    <link href="{{ asset('css/auth.css') }}" rel="stylesheet">
+</head>
+<body class="auth-page">
+    <main class="auth-shell">
+        <section class="auth-story">
+            <div class="auth-story-content">
+                <a href="{{ url('/') }}" class="auth-brand"><strong>Crazy</strong>Exam</a>
+                <h1>One quick check.</h1>
+                <p>Confirm your password before making a sensitive account change.</p>
             </div>
-        </div>
-    </div>
-</div>
-@endsection
+        </section>
 
-
-<!DOCTYPE html>
-<html lang="en">
-    <head>
-        <title>Reset</title>
-        <meta charset="utf-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <link rel="stylesheet" type="text/css" href="{{url('../assets/css/main.css')}}">
-        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="
-        sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
-        
-    </head>
-    <body class="please">
-  
-             <!-- Header -->
-            <header id="header">
-				<div class="inner">
-					<a href="{{ url('/') }}" class="logo"><strong>Crazy</strong>Exam</a>
-					<nav id="nav">
-                        <a href="{{ route('login') }}">Login</a>
-                        <a href="{{ route('register') }}">Register</a>
-					</nav>
-					<a href="#navPanel" class="navPanelToggle"><span class="fa fa-bars"></span></a>
+        <section class="auth-panel">
+            <div class="auth-card">
+                <div class="auth-nav">
+                    <a href="{{ route('home') }}">Dashboard</a>
+                    <a href="{{ url('/') }}">Home</a>
                 </div>
-                
 
-        
-            </header> 
-            <br />
-            <br />
-            <main class="py-4">
-            @yield('content')
-        </main>
+                <h2>Confirm password</h2>
+                <p class="auth-helper mb-4">Enter your current password to continue.</p>
 
+                <form method="POST" action="{{ route('password.confirm') }}">
+                    @csrf
 
-   
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <div class="password-input">
+                            <input id="password" type="password" class="form-control @error('password') is-invalid @enderror"
+                                name="password" required autocomplete="current-password" data-password-toggle>
+                            <button type="button" class="password-toggle" data-password-toggle-button aria-label="Show password" aria-pressed="false">Show</button>
+                        </div>
+                        @error('password')
+                            <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
+                        @enderror
+                    </div>
 
-<!-- Scripts -->
-<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
-		<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
-		<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js" integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV" crossorigin="anonymous"></script>
+                    <button type="submit" class="btn btn-success btn-block">Confirm Password</button>
 
-		<!-- Scripts -->
-			<script src="assets/js/jquery.min.js"></script>
-			<script src="assets/js/skel.min.js"></script>
-			<script src="assets/js/util.js"></script>
-			<script src="assets/js/main.js"></script>		
-    </body>
+                    @if (Route::has('password.request'))
+                        <div class="text-center mt-3">
+                            <a href="{{ route('password.request') }}">Forgot password?</a>
+                        </div>
+                    @endif
+                </form>
+            </div>
+        </section>
+    </main>
+    <script src="{{ asset('js/password-toggle.js') }}" defer></script>
+</body>
 </html>

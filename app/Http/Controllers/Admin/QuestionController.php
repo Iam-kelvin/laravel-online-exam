@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Question;
+use App\Models\Subject;
 
 class QuestionController extends Controller
 {
@@ -13,7 +14,7 @@ class QuestionController extends Controller
      */
     public function index()
     {
-        $questions = Question::all();
+        $questions = Question::with('subject')->latest()->get();
         return view('admin.questions.index', compact('questions'));
     }
 
@@ -22,7 +23,9 @@ class QuestionController extends Controller
      */
     public function create()
     {
-        return view('admin.questions.create');
+        $subjects = Subject::orderBy('name')->get();
+
+        return view('admin.questions.create', compact('subjects'));
     }
 
     /**
@@ -31,16 +34,24 @@ class QuestionController extends Controller
     public function store(Request $request)
     {
         $request->validate([
+            'subject_id' => 'required|exists:subjects,id',
             'question' => 'required',
             'option_a' => 'required',
             'option_b' => 'required',
             'option_c' => 'required',
             'option_d' => 'required',
-            'answer' => 'required',
-            'duration' => 'required|integer',
+            'answer' => 'required|in:option_a,option_b,option_c,option_d',
         ]);
 
-        Question::create($request->all());
+        Question::create($request->only([
+            'subject_id',
+            'question',
+            'option_a',
+            'option_b',
+            'option_c',
+            'option_d',
+            'answer',
+        ]));
 
         return redirect()->route('questions.index')
             ->with('success', 'Question created successfully.');
@@ -59,7 +70,9 @@ class QuestionController extends Controller
      */
     public function edit(Question $question)
     {
-        return view('admin.questions.edit', compact('question'));
+        $subjects = Subject::orderBy('name')->get();
+
+        return view('admin.questions.edit', compact('question', 'subjects'));
     }
 
     /**
@@ -68,15 +81,24 @@ class QuestionController extends Controller
     public function update(Request $request, Question $question)
     {
         $request->validate([
+            'subject_id' => 'required|exists:subjects,id',
             'question' => 'required',
             'option_a' => 'required',
             'option_b' => 'required',
             'option_c' => 'required',
             'option_d' => 'required',
-            'answer' => 'required',
+            'answer' => 'required|in:option_a,option_b,option_c,option_d',
         ]);
 
-        $question->update($request->all());
+        $question->update($request->only([
+            'subject_id',
+            'question',
+            'option_a',
+            'option_b',
+            'option_c',
+            'option_d',
+            'answer',
+        ]));
 
         return redirect()->route('questions.index')
             ->with('success', 'Question updated successfully.');

@@ -1,148 +1,324 @@
-<!DOCTYPE HTML>
+<!doctype html>
+<html lang="{{ str_replace('_', '-', app()->getLocale()) }}">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>CrazyExam</title>
+    <link href="{{ asset('css/app.css') }}" rel="stylesheet">
+    <style>
+        body {
+            background: #f4f7fb;
+            color: #102a43;
+        }
 
-<html lang="en">
-	<head>
-		<title>Crazy Exam</title>
-		<meta charset="utf-8" />
-		<meta name="viewport" content="width=device-width, initial-scale=1" />
-		<link rel="stylesheet" type="text/css" href="{{url('../assets/css/main.css')}}" >
-		
-		<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="
-		sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
-	</head>
+        .site-header {
+            align-items: center;
+            display: flex;
+            justify-content: space-between;
+            left: 0;
+            padding: 1rem 5vw;
+            position: absolute;
+            right: 0;
+            top: 0;
+            z-index: 3;
+        }
 
+        .brand {
+            color: #fff;
+            font-size: 1.35rem;
+            font-weight: 800;
+        }
 
-    <body>
+        .brand:hover,
+        .nav-link-public:hover {
+            color: #fff;
+            text-decoration: none;
+        }
 
-    <!-- Header -->
-			<header id="header">
-				<div class="inner">
-					<a href="{{ url('/') }}" class="logo"><strong>Crazy</strong>Exam</a>
-					<nav id="nav">
-                        <a href="{{ route('login') }}">Login</a>
-                        <a href="{{ route('register') }}">Register</a>
-					</nav>
-					<a href="#navPanel" class="navPanelToggle"><span class="fa fa-bars"></span></a>
-				</div>
-			</header>
+        .brand strong {
+            color: #7ee3b2;
+        }
 
+        .nav-actions {
+            align-items: center;
+            display: flex;
+            gap: 0.75rem;
+        }
 
-		<!-- Banner -->
-        <section id="banner">
-				<div class="inner">
-					<header>
-						<h1>Welcome to <span class="logo"><strong>Crazy</strong>Exam</span></h1>
-					</header>
+        .nav-link-public {
+            color: #fff;
+            font-weight: 700;
+        }
 
-					<div class="flex ">
+        .hero {
+            align-items: center;
+            background-image: url("{{ asset('images/exx1.jpg') }}");
+            background-position: center;
+            background-size: cover;
+            display: flex;
+            min-height: 84vh;
+            padding: 7rem 5vw 4rem;
+            position: relative;
+        }
 
-						<div>
-							<span class="icon fa fa-user-plus"></span>
-							<h3>Register</h3>
-							<p>Register to Crazy Exam</p>
-						</div>
+        .hero::before {
+            background: linear-gradient(90deg, rgba(10, 23, 42, 0.86), rgba(10, 23, 42, 0.48));
+            content: "";
+            inset: 0;
+            position: absolute;
+        }
 
-						<div>
-							<span class="icon fa-laptop"></span>
-							<h3>Quiz</h3>
-							<p>Take a Quiz</p>
-						</div>
+        .hero-content {
+            color: #fff;
+            max-width: 760px;
+            position: relative;
+            z-index: 1;
+        }
 
-						<div>
-							<span class="icon fas fa-graduation-cap"></span>
-							<h3>Result</h3>
-							<p>Get Your Score</p>
-						</div>
+        .hero-kicker {
+            color: #a7f3d0;
+            font-weight: 800;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
 
-					</div>
+        .hero h1 {
+            font-size: clamp(2.5rem, 6vw, 5.25rem);
+            font-weight: 800;
+            letter-spacing: 0;
+            line-height: 1;
+            margin-bottom: 1rem;
+        }
 
-					<footer>
-						<a href="{{ route('register') }}" class="button">Get Started</a>
-					</footer>
-				</div>
-			</section>
+        .hero p {
+            color: #d9e2ec;
+            font-size: 1.2rem;
+            margin-bottom: 1.5rem;
+            max-width: 640px;
+        }
 
+        .hero-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+        }
 
-		<!-- Three -->
-			<section id="three" class="wrapper align-center">
-				<div class="inner">
-					<div class="flex flex-2">
-						<article>
-							<div class="image round">
-								<img src="images/pic03.jpg" alt="Pic 01" />
-							</div>
-							<header>
-								<h3>About Us<br /> </h3>
-							</header>
-							<p>CrazyExam is here to test your cognitive skills<br /> while you represent your school<br /> and get rewarded by us for it.</p>
-							<footer>
-								<a href="{{ route('login') }}" class="button">Login</a>
-							</footer>
-						</article>
-						<article>
-							<div class="image round">
-								<img src="images/pic04.jpg" alt="Pic 02" />
-							</div>
-							<header>
-								<h3>Take a Quiz!<br /> Put Your School Ahead<br /> Get Reward</h3>
-							</header>
-							<p>Join now and take a quiz<br /> anywhere and anytime on your smartphone or computer,<br /> represent your school and get rewarded.</p>
-							<footer>
-								<a href="{{ route('register') }}" class="button">Join Now</a>
-							</footer>
-						</article>
-					</div>
-				</div>
-			</section>
+        .home-section {
+            padding: 3rem 5vw;
+        }
 
-		<!-- Footer -->
-			<footer id="footer">
-				<div class="inner">
+        .stat-strip {
+            display: grid;
+            gap: 1rem;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            margin-top: -2.5rem;
+            position: relative;
+            z-index: 2;
+        }
 
-					<h3>Get in touch</h3>
+        .stat-card,
+        .feature-card,
+        .story-panel {
+            background: #fff;
+            border: 1px solid #d9e2ec;
+            border-radius: 0.5rem;
+        }
 
-					<form action="#" method="post">
+        .stat-card {
+            padding: 1.25rem;
+        }
 
-						<div class="field half first">
-							<label for="name">Name</label>
-							<input name="name" id="name" type="text" placeholder="Name">
-						</div>
-						<div class="field half">
-							<label for="email">Email</label>
-							<input name="email" id="email" type="email" placeholder="Email">
-						</div>
-						<div class="field">
-							<label for="message">Message</label>
-							<textarea name="message" id="message" rows="6" placeholder="Message"></textarea>
-						</div>
-						<ul class="actions">
-							<li><input value="Send Message" class="button alt" type="submit"></li>
-						</ul>
-					</form>
+        .stat-card span {
+            color: #627d98;
+            display: block;
+            font-size: 0.82rem;
+            font-weight: 800;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+        }
 
-					<i class="fa fa-facebook"></i>
-					<i class="fa fa-twitter"></i>
-					<i class="fa fa-pinterest"></i>
-					<i class="fa fa-instagram"></i>
-					<i class="fa fa-google-plus"></i> <br /> @CrazyExam
+        .stat-card strong {
+            color: #0b8f65;
+            display: block;
+            font-size: 2rem;
+            margin-top: 0.25rem;
+        }
 
-					<div class="copyright">
-						&copy; 2020. CrazyExam: Quiz.
-					</div>
+        .story-panel {
+            display: grid;
+            gap: 2rem;
+            grid-template-columns: minmax(0, 1fr) minmax(280px, 420px);
+            overflow: hidden;
+        }
 
-				</div>
-			</footer>
-			
-		<!-- Scripts -->
-		<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
-		<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
-		<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js" integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV" crossorigin="anonymous"></script>
+        .story-copy {
+            padding: 2rem;
+        }
 
-		<!-- Scripts -->
-			<script src="assets/js/jquery.min.js"></script>
-			<script src="assets/js/skel.min.js"></script>
-			<script src="assets/js/util.js"></script>
-			<script src="assets/js/main.js"></script>
+        .story-copy h2 {
+            font-size: clamp(1.7rem, 3vw, 2.6rem);
+            font-weight: 800;
+            letter-spacing: 0;
+            margin-bottom: 1rem;
+        }
 
-	</body>
+        .story-copy p {
+            color: #52606d;
+            font-size: 1.05rem;
+        }
+
+        .story-image {
+            background-color: #050505;
+            background-image: url("{{ asset('images/crazyexam.jpg') }}?v={{ filemtime(public_path('images/crazyexam.jpg')) }}");
+            background-position: center;
+            background-repeat: no-repeat;
+            background-size: contain;
+            min-height: 320px;
+        }
+
+        .feature-grid {
+            display: grid;
+            gap: 1rem;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        }
+
+        .feature-card {
+            padding: 1.25rem;
+        }
+
+        .feature-card h3 {
+            font-size: 1.1rem;
+            font-weight: 800;
+            margin-bottom: 0.5rem;
+        }
+
+        .feature-card p {
+            color: #52606d;
+            margin-bottom: 0;
+        }
+
+        .final-cta {
+            background: #143d3a;
+            border-radius: 0.5rem;
+            color: #fff;
+            padding: 2rem;
+            text-align: center;
+        }
+
+        .final-cta p {
+            color: #d9e2ec;
+        }
+
+        @media (max-width: 760px) {
+            .site-header {
+                align-items: flex-start;
+                flex-direction: column;
+                gap: 0.75rem;
+            }
+
+            .hero {
+                min-height: 88vh;
+                padding-top: 9rem;
+            }
+
+            .story-panel {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="site-header">
+        <a href="{{ url('/') }}" class="brand"><strong>Crazy</strong>Exam</a>
+        <nav class="nav-actions">
+            @auth
+                <a href="{{ route('home') }}" class="nav-link-public">Dashboard</a>
+                @can('manage-questions')
+                    <a href="{{ route('admin.dashboard') }}" class="btn btn-success">Admin</a>
+                @endcan
+            @else
+                <a href="{{ route('login') }}" class="nav-link-public">Login</a>
+                @if (Route::has('register'))
+                    <a href="{{ route('register') }}" class="btn btn-success">Register</a>
+                @endif
+            @endauth
+        </nav>
+    </header>
+
+    <section class="hero">
+        <div class="hero-content">
+            <p class="hero-kicker">Practice with purpose</p>
+            <h1>Build confidence before the real exam.</h1>
+            <p>CrazyExam helps students turn scattered revision into timed, focused practice. Pick one subject, mix several together, and see exactly how each attempt went.</p>
+            <div class="hero-actions">
+                @auth
+                    <a href="{{ route('exam.start') }}" class="btn btn-success btn-lg">Start Exam</a>
+                    <a href="{{ route('home') }}" class="btn btn-outline-light btn-lg">Dashboard</a>
+                @else
+                    <a href="{{ route('register') }}" class="btn btn-success btn-lg">Get Started</a>
+                    <a href="{{ route('login') }}" class="btn btn-outline-light btn-lg">Login</a>
+                @endauth
+            </div>
+        </div>
+    </section>
+
+    <main>
+        <section class="home-section">
+            <div class="stat-strip">
+                <div class="stat-card">
+                    <span>Subjects To Practice</span>
+                    <strong>{{ $stats['subjects'] }}</strong>
+                </div>
+                <div class="stat-card">
+                    <span>Practice Questions</span>
+                    <strong>{{ $stats['questions'] }}</strong>
+                </div>
+                <div class="stat-card">
+                    <span>Exam Lengths</span>
+                    <strong>{{ $stats['presets'] }}</strong>
+                </div>
+            </div>
+        </section>
+
+        <section class="home-section pt-0">
+            <div class="story-panel">
+                <div class="story-copy">
+                    <h2>Turn pressure into practice.</h2>
+                    <p>The last few minutes of an exam can feel loud in your head. CrazyExam gives you a calmer way to train for that moment: choose what you want to practice, sit with a real countdown, and learn from the result.</p>
+                    <p>Start small when you are warming up. Mix subjects when you want a tougher challenge. Each attempt helps you understand where you are strong and where your next revision session should go.</p>
+                </div>
+                <div class="story-image" aria-hidden="true"></div>
+            </div>
+        </section>
+
+        <section class="home-section pt-0">
+            <div class="feature-grid">
+                <article class="feature-card">
+                    <h3>Practice Your Way</h3>
+                    <p>Focus on one subject or mix subjects when you want a broader challenge.</p>
+                </article>
+                <article class="feature-card">
+                    <h3>Beat The Clock</h3>
+                    <p>Use timed practice to get comfortable with exam pressure before the real day.</p>
+                </article>
+                <article class="feature-card">
+                    <h3>Know Your Progress</h3>
+                    <p>Review your attempts and use each result to decide what to practice next.</p>
+                </article>
+            </div>
+        </section>
+
+        <section class="home-section pt-0">
+            <div class="final-cta">
+                <h2 class="h3">Ready to practice smarter?</h2>
+                <p>Start with a short exam, learn from the result, then come back sharper.</p>
+                @auth
+                    <a href="{{ route('exam.start') }}" class="btn btn-success">Start Exam</a>
+                @else
+                    <a href="{{ route('register') }}" class="btn btn-success">Create Account</a>
+                @endauth
+            </div>
+        </section>
+    </main>
+</body>
 </html>

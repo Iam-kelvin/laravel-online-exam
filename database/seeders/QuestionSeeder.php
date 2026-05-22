@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use App\Models\Question;
+use App\Models\Subject;
 
 class QuestionSeeder extends Seeder
 {
@@ -13,8 +14,17 @@ class QuestionSeeder extends Seeder
      */
     public function run(): void
     {
+        $generalSubject = Subject::firstOrCreate(
+            ['name' => 'General'],
+            [
+                'slug' => 'general',
+                'active' => true,
+            ]
+        );
+
         $questions = [
             [
+                'subject_id' => $generalSubject->id,
                 'question' => 'What is the capital of France?',
                 'option_a' => 'London',
                 'option_b' => 'Paris',
@@ -24,6 +34,7 @@ class QuestionSeeder extends Seeder
                 'duration' => 60,
             ],
             [
+                'subject_id' => $generalSubject->id,
                 'question' => 'What is 2 + 2?',
                 'option_a' => '3',
                 'option_b' => '4',
@@ -33,6 +44,7 @@ class QuestionSeeder extends Seeder
                 'duration' => 60,
             ],
             [
+                'subject_id' => $generalSubject->id,
                 'question' => 'What is 5 + 2?',
                 'option_a' => '3',
                 'option_b' => '4',
@@ -42,6 +54,7 @@ class QuestionSeeder extends Seeder
                 'duration' => 60,
             ],
             [
+                'subject_id' => $generalSubject->id,
                 'question' => 'What is 1 + 2?',
                 'option_a' => '3',
                 'option_b' => '4',
@@ -51,6 +64,7 @@ class QuestionSeeder extends Seeder
                 'duration' => 60,
             ],
             [
+                'subject_id' => $generalSubject->id,
                 'question' => 'What is 3 + 2?',
                 'option_a' => '3',
                 'option_b' => '4',

@@ -1,51 +1,59 @@
-@extends('layouts.app')
+@extends('layouts.ap')
 
 @section('content')
-<div class="container">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card">
-                <div class="card-header">Users</div>
+    <div class="content-panel">
+        <div class="panel-header">
+            <div>
+                <h1 class="h4 mb-1">Users</h1>
+                <p class="text-muted mb-0">Manage roles and recover account email access.</p>
+            </div>
+        </div>
 
-                <div class="card-body">
-                    
-                    <table class="table">
-                        <thead>
-                            <tr>
-                            <th scope="col">#</th>
-                            <th scope="col">Name</th>
-                            <th scope="col">Email</th>
-                            <th scope="col">Roles</th>
-                            <th scope="col">Action</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                        @foreach($users as $user)
-                            <tr>
+        <div class="table-responsive">
+            <table class="table table-hover mb-0">
+                <thead>
+                    <tr>
+                        <th>#</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Verified</th>
+                        <th>Roles</th>
+                        <th>Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach($users as $user)
+                        <tr>
                             <th scope="row">{{ $user->id }}</th>
                             <td>{{ $user->name }}</td>
                             <td>{{ $user->email }}</td>
-                            <td>{{ implode(',', $user->roles()->pluck('name')->toArray()) }}</td>
                             <td>
-                            @can('edit-users')
-                                <a href="{{ route('users.edit', $user->id) }}"><button type="button" class="btn btn-primary float-left">Edit</button></a>
-                            @endcan
-                            @can('delete-users')
-                                <form action="{{ route('users.destroy', $user) }}" method="POST" class="float-left">
-                                    @csrf
-                                    {{ method_field ('DELETE') }}
-                                    <button type="Submit" class="btn btn-danger">Delete</button>
-                                </form>
-                            @endcan
+                                <span class="badge badge-{{ $user->hasVerifiedEmail() ? 'success' : 'warning' }}">
+                                    {{ $user->hasVerifiedEmail() ? 'Verified' : 'Pending' }}
+                                </span>
                             </td>
-                            </tr>
-                        @endforeach
-                        </tbody>
-                        </table>
-
-                </div>
-            </div>
+                            <td>{{ $user->roles->pluck('name')->join(', ') }}</td>
+                            <td>
+                                <div class="dashboard-actions">
+                                    @can('edit-users')
+                                        <a href="{{ route('users.edit', $user->id) }}" class="btn btn-sm btn-primary">Edit</a>
+                                    @endcan
+                                    @can('recover-user-email')
+                                        <a href="{{ route('users.email.edit', $user) }}" class="btn btn-sm btn-outline-secondary">Recover Email</a>
+                                    @endcan
+                                    @can('delete-users')
+                                        <form action="{{ route('users.destroy', $user) }}" method="POST">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                                        </form>
+                                    @endcan
+                                </div>
+                            </td>
+                        </tr>
+                    @endforeach
+                </tbody>
+            </table>
         </div>
     </div>
-</div>
 @endsection
