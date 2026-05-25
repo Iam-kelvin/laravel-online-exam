@@ -1,22 +1,32 @@
 <?php
 
-use Illuminate\Contracts\Http\Kernel;
-use Illuminate\Http\Request;
+$storagePath = $_ENV['APP_STORAGE_PATH'] ?? $_SERVER['APP_STORAGE_PATH'] ?? '/tmp/laravel_storage';
+$bootstrapCache = '/tmp/laravel_bootstrap_cache';
 
-define('LARAVEL_START', microtime(true));
-
-if (file_exists($maintenance = __DIR__.'/../storage/framework/maintenance.php')) {
-    require $maintenance;
+foreach ([
+    $storagePath,
+    $storagePath.'/app',
+    $storagePath.'/framework/cache/data',
+    $storagePath.'/framework/sessions',
+    $storagePath.'/framework/views',
+    $storagePath.'/logs',
+    $bootstrapCache,
+] as $path) {
+    if (! is_dir($path)) {
+        mkdir($path, 0777, true);
+    }
 }
 
-require __DIR__.'/../vendor/autoload.php';
+putenv('APP_STORAGE_PATH='.$storagePath);
+$_ENV['APP_STORAGE_PATH'] = $storagePath;
+$_SERVER['APP_STORAGE_PATH'] = $storagePath;
 
-$app = require_once __DIR__.'/../bootstrap/app.php';
+putenv('APP_PACKAGES_CACHE='.$bootstrapCache.'/packages.php');
+$_ENV['APP_PACKAGES_CACHE'] = $bootstrapCache.'/packages.php';
+$_SERVER['APP_PACKAGES_CACHE'] = $bootstrapCache.'/packages.php';
 
-$kernel = $app->make(Kernel::class);
+putenv('APP_SERVICES_CACHE='.$bootstrapCache.'/services.php');
+$_ENV['APP_SERVICES_CACHE'] = $bootstrapCache.'/services.php';
+$_SERVER['APP_SERVICES_CACHE'] = $bootstrapCache.'/services.php';
 
-$response = $kernel->handle(
-    $request = Request::capture()
-)->send();
-
-$kernel->terminate($request, $response);
+require __DIR__.'/../public/index.php';
