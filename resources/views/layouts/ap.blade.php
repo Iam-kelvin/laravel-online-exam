@@ -21,7 +21,7 @@
             <nav class="sidebar-nav">
                 <a class="sidebar-link {{ request()->routeIs('home') ? 'active' : '' }}" href="{{ route('home') }}">Dashboard</a>
                 <a class="sidebar-link {{ request()->routeIs('exam.start') || request()->routeIs('exam.take') ? 'active' : '' }}" href="{{ Auth::user()->hasVerifiedEmail() ? route('exam.start') : route('verification.notice') }}">Take Exam</a>
-                <a class="sidebar-link {{ request()->routeIs('exam.results') ? 'active' : '' }}" href="{{ route('exam.results') }}">Results</a>
+                <a class="sidebar-link {{ request()->routeIs('exam.results') || request()->routeIs('exam.review') ? 'active' : '' }}" href="{{ route('exam.results') }}">Results</a>
                 <a class="sidebar-link {{ request()->routeIs('account.*') ? 'active' : '' }}" href="{{ route('account.edit') }}">Account Settings</a>
 
                 @can('manage-questions')

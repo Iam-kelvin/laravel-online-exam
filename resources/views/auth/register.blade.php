@@ -49,23 +49,59 @@
                             @enderror
                         </div>
 
-                        @foreach ([
-                            'country' => 'Country',
-                            'state' => 'State',
-                            'county' => 'County',
-                            'level' => 'School Level',
-                            'grade' => 'Grade',
-                            'school' => 'School',
-                        ] as $field => $label)
-                            <div class="form-group">
-                                <label for="{{ $field }}">{{ $label }}</label>
-                                <input id="{{ $field }}" type="text" class="form-control @error($field) is-invalid @enderror"
-                                    name="{{ $field }}" value="{{ old($field) }}" required autocomplete="{{ $field }}">
-                                @error($field)
-                                    <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
-                                @enderror
-                            </div>
-                        @endforeach
+                        <div class="form-group">
+                            <label for="school_level">School Level</label>
+                            <select id="school_level" class="form-control @error('school_level') is-invalid @enderror"
+                                name="school_level" required autocomplete="education-level">
+                                <option value="">Choose level</option>
+                                @foreach (array_keys(config('profile.school_levels')) as $level)
+                                    <option value="{{ $level }}" {{ old('school_level') === $level ? 'selected' : '' }}>
+                                        {{ $level }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            @error('school_level')
+                                <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
+                            @enderror
+                        </div>
+
+                        <div class="form-group">
+                            <label for="class_year">Class / Year</label>
+                            <select id="class_year" class="form-control @error('class_year') is-invalid @enderror"
+                                name="class_year" required data-current="{{ old('class_year') }}">
+                                <option value="">Choose school level first</option>
+                            </select>
+                            @error('class_year')
+                                <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
+                            @enderror
+                        </div>
+
+                        <div class="form-group">
+                            <label for="country_of_study">Country of Study</label>
+                            <select id="country_of_study" class="form-control @error('country_of_study') is-invalid @enderror"
+                                name="country_of_study" required autocomplete="country-name">
+                                <option value="">Choose country</option>
+                                @foreach (config('profile.countries') as $country)
+                                    <option value="{{ $country }}" {{ old('country_of_study') === $country ? 'selected' : '' }}>
+                                        {{ $country }}
+                                    </option>
+                                @endforeach
+                            </select>
+                            @error('country_of_study')
+                                <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
+                            @enderror
+                        </div>
+
+                        <div class="form-group">
+                            <label for="city_town">City / Town</label>
+                            <input id="city_town" type="text" list="city-options"
+                                class="form-control @error('city_town') is-invalid @enderror"
+                                name="city_town" value="{{ old('city_town') }}" required autocomplete="address-level2">
+                            <datalist id="city-options"></datalist>
+                            @error('city_town')
+                                <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
+                            @enderror
+                        </div>
 
                         <div class="form-group">
                             <label for="password">Password</label>
@@ -94,6 +130,13 @@
             </div>
         </section>
     </main>
+    <script>
+        window.crazyExamProfileOptions = {
+            classYears: @json(config('profile.school_levels')),
+            citySuggestions: @json(config('profile.city_suggestions')),
+        };
+    </script>
+    <script src="{{ asset('js/register-profile.js') }}" defer></script>
     <script src="{{ asset('js/password-toggle.js') }}" defer></script>
 </body>
 </html>

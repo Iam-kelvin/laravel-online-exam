@@ -16,6 +16,9 @@
                         <th>#</th>
                         <th>Name</th>
                         <th>Email</th>
+                        <th>Country</th>
+                        <th>City</th>
+                        <th>Level</th>
                         <th>Verified</th>
                         <th>Roles</th>
                         <th>Action</th>
@@ -27,6 +30,12 @@
                             <th scope="row">{{ $user->id }}</th>
                             <td>{{ $user->name }}</td>
                             <td>{{ $user->email }}</td>
+                            <td>{{ $user->country_of_study ?: $user->country }}</td>
+                            <td>{{ $user->city_town ?: $user->county }}</td>
+                            <td>
+                                {{ $user->school_level ?: $user->level }}
+                                <span class="text-muted d-block">{{ $user->class_year ?: $user->grade }}</span>
+                            </td>
                             <td>
                                 <span class="badge badge-{{ $user->hasVerifiedEmail() ? 'success' : 'warning' }}">
                                     {{ $user->hasVerifiedEmail() ? 'Verified' : 'Pending' }}

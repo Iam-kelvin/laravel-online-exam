@@ -2,16 +2,17 @@
 
 namespace App\Models;
 
-use Illuminate\Auth\MustVerifyEmail;
-use Illuminate\Contracts\Auth\MustVerifyEmail as MustVerifyEmailContract;
+// use Illuminate\Auth\MustVerifyEmail;
+// use Illuminate\Contracts\Auth\MustVerifyEmail as MustVerifyEmailContract;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
-class User extends Authenticatable implements MustVerifyEmailContract
+class User extends Authenticatable // implements MustVerifyEmailContract
 {
-    use MustVerifyEmail, HasApiTokens, HasFactory, Notifiable;
+    // use MustVerifyEmail, HasApiTokens, HasFactory, Notifiable;
+    use HasApiTokens, HasFactory, Notifiable;
 
     /**
      * The attributes that are mass assignable.
@@ -27,6 +28,10 @@ class User extends Authenticatable implements MustVerifyEmailContract
         'level',
         'grade',
         'school',
+        'school_level',
+        'class_year',
+        'country_of_study',
+        'city_town',
         'password',
     ];
 

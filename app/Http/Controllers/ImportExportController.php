@@ -20,11 +20,15 @@ class ImportExportController extends Controller
     {
         return view('importexport');
     }
-    public function import(Request $request, ) 
+    public function import(Request $request)
     {
-        Excel::import(new BulkImport,request()->file('file'));
+        $validated = $request->validate([
+            'file' => ['required', 'file', 'mimes:csv,txt,xlsx,xls'],
+        ]);
 
-        $request->session()->flash('success', 'Bulk Question Uploaded');
+        Excel::import(new BulkImport, $validated['file']);
+
+        $request->session()->flash('success', 'Question banks updated successfully.');
 
         return back();
     }

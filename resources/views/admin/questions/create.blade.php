@@ -19,7 +19,7 @@
                     <select class="form-control" id="subject_id" name="subject_id" required>
                         <option value="">Choose subject</option>
                         @foreach ($subjects as $subject)
-                            <option value="{{ $subject->id }}" {{ (int) old('subject_id') === $subject->id ? 'selected' : '' }}>
+                            <option value="{{ $subject->id }}" {{ (int) old('subject_id', request('subject_id')) === $subject->id ? 'selected' : '' }}>
                                 {{ $subject->name }}
                             </option>
                         @endforeach

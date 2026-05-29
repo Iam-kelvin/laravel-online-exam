@@ -81,6 +81,38 @@
         </div>
     </div>
 
+    <div class="content-panel mb-4">
+        <div class="panel-header">
+            <div>
+                <h2 class="h5 mb-1">Learner Insights</h2>
+                <p class="text-muted mb-0">Location and academic profile spread across registered users.</p>
+            </div>
+        </div>
+
+        <div class="row">
+            @foreach ([
+                'Countries' => $countryInsights,
+                'Cities / Towns' => $cityInsights,
+                'School Levels' => $levelInsights,
+                'Classes / Years' => $classInsights,
+            ] as $title => $items)
+                <div class="col-md-6 col-xl-3 mb-3">
+                    <h3 class="h6 text-muted mb-3">{{ $title }}</h3>
+                    <div class="preset-list">
+                        @forelse ($items as $item)
+                            <div class="preset-row">
+                                <span>{{ $item->label }}</span>
+                                <strong>{{ $item->total }}</strong>
+                            </div>
+                        @empty
+                            <div class="empty-state">No data yet.</div>
+                        @endforelse
+                    </div>
+                </div>
+            @endforeach
+        </div>
+    </div>
+
     <div class="content-panel">
         <div class="panel-header">
             <div>

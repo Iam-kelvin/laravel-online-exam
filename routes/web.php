@@ -74,6 +74,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/exam/results', [ExamController::class, 'results'])->name('exam.results');
+    Route::get('/exam/attempts/{attempt}/review', [ExamController::class, 'review'])->name('exam.review');
 });
 
 /*Excel import export*/

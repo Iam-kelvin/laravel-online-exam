@@ -96,7 +96,7 @@ class ExamController extends Controller
 
         $redirect = redirect()->route('exam.take', $attempt);
 
-        if ($attempt->question_count < $attempt->requested_question_count) {
+        if ($attempt->question_count < $attempt->requested_question_count && auth()->user()->can('manage-questions')) {
             return $redirect->with(
                 'warning',
                 "{$attempt->question_count} questions were available from the selected subjects, so this attempt was created with {$attempt->question_count} questions."
@@ -111,7 +111,7 @@ class ExamController extends Controller
         abort_unless($attempt->user_id === auth()->id(), 403);
 
         if ($attempt->submitted_at) {
-            return redirect()->route('exam.results');
+            return redirect()->route('exam.review', $attempt);
         }
 
         $attempt->load(['subjects', 'questions.subject']);
@@ -125,7 +125,7 @@ class ExamController extends Controller
         abort_unless($attempt->user_id === auth()->id(), 403);
 
         if ($attempt->submitted_at) {
-            return redirect()->route('exam.results')->with('warning', 'This exam has already been submitted.');
+            return redirect()->route('exam.review', $attempt)->with('warning', 'This exam has already been submitted.');
         }
 
         $answers = $request->input('answers', []);
@@ -152,7 +152,7 @@ class ExamController extends Controller
             'submitted_at' => now(),
         ]);
 
-        return redirect()->route('exam.results')->with('success', 'Exam submitted successfully.');
+        return redirect()->route('exam.review', $attempt)->with('success', 'Exam submitted successfully.');
     }
 
     public function results()
@@ -164,6 +164,19 @@ class ExamController extends Controller
             ->get();
 
         return view('exam.results', compact('examAttempts'));
+    }
+
+    public function review(ExamAttempt $attempt)
+    {
+        abort_unless($attempt->user_id === auth()->id(), 403);
+
+        if (! $attempt->submitted_at) {
+            return redirect()->route('exam.take', $attempt)->with('warning', 'Submit this exam before reviewing answers.');
+        }
+
+        $attempt->load(['subjects', 'questions.subject']);
+
+        return view('exam.review', compact('attempt'));
     }
 
     private function selectQuestions(Collection $subjects, int $requestedCount): Collection

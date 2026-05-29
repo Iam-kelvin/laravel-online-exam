@@ -53,12 +53,10 @@ class RegisterController extends Controller
         return Validator::make($data, [
             'name' => ['required', 'string', 'max:255'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
-            'country' => ['required', 'string', 'max:255'],
-            'state' => ['required', 'string', 'max:255'],
-            'county' => ['required', 'string', 'max:255'],
-            'level' => ['required', 'string', 'max:255'],
-            'grade' => ['required', 'string', 'max:255'],
-            'school' => ['required', 'string', 'max:255'],
+            'school_level' => ['required', 'string', 'max:255'],
+            'class_year' => ['required', 'string', 'max:255'],
+            'country_of_study' => ['required', 'string', 'max:255'],
+            'city_town' => ['required', 'string', 'max:255'],
             'password' => ['required', 'string', 'min:8', 'confirmed'],
         ]);
     }
@@ -74,12 +72,16 @@ class RegisterController extends Controller
         $user = User::create([
             'name' => $data['name'],
             'email' => $data['email'],
-            'country' => $data['country'],
-            'state' => $data['state'],
-            'county' => $data['county'],
-            'level' => $data['level'],
-            'grade' => $data['grade'],
-            'school' => $data['school'],
+            'country' => $data['country_of_study'],
+            'state' => $data['country_of_study'],
+            'county' => $data['city_town'],
+            'level' => $data['school_level'],
+            'grade' => $data['class_year'],
+            'school' => 'Not provided',
+            'school_level' => $data['school_level'],
+            'class_year' => $data['class_year'],
+            'country_of_study' => $data['country_of_study'],
+            'city_town' => $data['city_town'],
             'password' => Hash::make($data['password']),
         ]);
 

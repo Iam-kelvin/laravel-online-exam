@@ -20,6 +20,7 @@
                         <th>Questions</th>
                         <th>Duration</th>
                         <th>Submitted</th>
+                        <th></th>
                     </tr>
                 </thead>
                 <tbody>
@@ -37,10 +38,17 @@
                             <td>{{ $attempt->question_count }}</td>
                             <td>{{ intdiv($attempt->duration_seconds, 60) }} mins</td>
                             <td>{{ optional($attempt->submitted_at)->format('M j, Y g:i A') ?? 'Not submitted' }}</td>
+                            <td class="text-right">
+                                @if($attempt->submitted_at)
+                                    <a href="{{ route('exam.review', $attempt) }}" class="btn btn-sm btn-outline-primary">Review</a>
+                                @else
+                                    <a href="{{ route('exam.take', $attempt) }}" class="btn btn-sm btn-outline-secondary">Continue</a>
+                                @endif
+                            </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="6" class="text-center text-muted py-4">No exam attempts yet.</td>
+                            <td colspan="7" class="text-center text-muted py-4">No exam attempts yet.</td>
                         </tr>
                     @endforelse
                 </tbody>

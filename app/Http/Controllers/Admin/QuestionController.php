@@ -14,8 +14,20 @@ class QuestionController extends Controller
      */
     public function index()
     {
-        $questions = Question::with('subject')->latest()->get();
-        return view('admin.questions.index', compact('questions'));
+        $subjects = Subject::query()
+            ->with(['questions' => fn ($query) => $query->latest()])
+            ->withCount('questions')
+            ->orderBy('name')
+            ->get();
+
+        $unassignedQuestions = Question::query()
+            ->whereNull('subject_id')
+            ->latest()
+            ->get();
+
+        $totalQuestions = $subjects->sum('questions_count') + $unassignedQuestions->count();
+
+        return view('admin.questions.index', compact('subjects', 'unassignedQuestions', 'totalQuestions'));
     }
 
     /**
