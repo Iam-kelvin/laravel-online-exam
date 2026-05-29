@@ -35,7 +35,7 @@ Route::get('/', function () {
     ]);
 });
 
-Auth::routes(['verify' => true]);
+Auth::routes(['verify' => false]);
 
 Route::get('/home', [HomeController::class, 'index'])->name('home');
 
@@ -65,7 +65,7 @@ Route::group(['namespace' => 'App\Http\Controllers\Admin', 'middleware' => ['aut
 });
 
 // Routes for exams and results
-Route::middleware(['auth', 'verified'])->group(function () {
+Route::middleware(['auth'])->group(function () {
     Route::get('/exam/start', [ExamController::class, 'start'])->name('exam.start');
     Route::post('/exam/start', [ExamController::class, 'store'])->name('exam.store');
     Route::get('/exam/attempts/{attempt}', [ExamController::class, 'take'])->name('exam.take');

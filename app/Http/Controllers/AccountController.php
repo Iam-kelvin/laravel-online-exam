@@ -37,18 +37,15 @@ class AccountController extends Controller
             ]);
 
             $user->email = $validated['email'];
-            $user->email_verified_at = null;
         }
 
         $user->name = $validated['name'];
         $user->save();
 
         if ($emailChanged) {
-            $user->sendEmailVerificationNotification();
-
             return redirect()
                 ->route('account.edit')
-                ->with('warning', 'Email updated. Please verify the new email address before taking an exam.');
+                ->with('success', 'Email updated.');
         }
 
         return redirect()

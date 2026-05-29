@@ -4,12 +4,6 @@
     </div>
 @endif
 
-@if(session('resent'))
-    <div class="alert alert-success" role="alert">
-        A fresh verification link has been sent to your email address.
-    </div>
-@endif
-
 @if(session('success'))
     <div class="alert alert-success" role="alert">
         {{ session('success') }}

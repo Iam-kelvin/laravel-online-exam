@@ -4,7 +4,6 @@ namespace Tests\Feature;
 
 use App\Models\User;
 use Illuminate\Auth\Notifications\ResetPassword;
-use Illuminate\Auth\Notifications\VerifyEmail;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Notification;
@@ -14,18 +13,17 @@ class AccountSecurityTest extends TestCase
 {
     use DatabaseTransactions;
 
-    public function test_unverified_user_can_open_dashboard_but_not_start_exam(): void
+    public function test_user_can_open_dashboard_and_start_exam_without_email_verification(): void
     {
         $user = User::factory()->unverified()->create();
 
         $this->actingAs($user)
             ->get(route('home'))
-            ->assertOk()
-            ->assertSee('Confirm your email address');
+            ->assertOk();
 
         $this->actingAs($user)
             ->get(route('exam.start'))
-            ->assertRedirect(route('verification.notice'));
+            ->assertOk();
 
         $this->actingAs($user)
             ->get(route('exam.results'))
@@ -49,7 +47,7 @@ class AccountSecurityTest extends TestCase
         $this->assertTrue(Hash::check('new-password', $user->fresh()->password));
     }
 
-    public function test_email_change_requires_current_password_and_sends_verification(): void
+    public function test_email_change_requires_current_password(): void
     {
         $user = User::factory()->create([
             'email' => 'learner@example.test',
@@ -63,8 +61,6 @@ class AccountSecurityTest extends TestCase
             ])
             ->assertSessionHasErrors(['current_password'], null, 'profile');
 
-        Notification::fake();
-
         $this->actingAs($user)
             ->patch(route('account.profile.update'), [
                 'name' => 'Learner Updated',
@@ -77,8 +73,6 @@ class AccountSecurityTest extends TestCase
 
         $this->assertSame('Learner Updated', $user->name);
         $this->assertSame('new-learner@example.test', $user->email);
-        $this->assertNull($user->email_verified_at);
-        Notification::assertSentTo($user, VerifyEmail::class);
     }
 
     public function test_forgot_password_sends_reset_notification(): void

@@ -35,15 +35,15 @@
                         @enderror
                     </div>
 
-                    <button type="submit" class="btn btn-success">Update And Send Verification</button>
+                    <button type="submit" class="btn btn-success">Update Email</button>
                 </form>
             </div>
 
             <div class="col-lg-5 mt-4 mt-lg-0">
                 <div class="selection-card">
                     <h2 class="h5">What happens next?</h2>
-                    <p class="text-muted mb-2">The old email is replaced, verification is cleared, and CrazyExam sends a fresh verification link to the new address.</p>
-                    <p class="text-muted mb-0">The learner can still enter the dashboard, but they cannot take exams until the new email is verified.</p>
+                    <p class="text-muted mb-2">The old email is replaced on the account.</p>
+                    <p class="text-muted mb-0">The learner can sign in with the new address immediately.</p>
                 </div>
             </div>
         </div>

@@ -68,25 +68,14 @@ class UsersController extends Controller
             'roles.*' => ['exists:roles,id'],
         ]);
 
-        $emailChanged = $validated['email'] !== $user->email;
-
         $user->roles()->sync($validated['roles'] ?? []);
 
         $user->name = $validated['name'];
         $user->email = $validated['email'];
 
-        if ($emailChanged) {
-            $user->email_verified_at = null;
-        }
-        
         if($user->save())
         {
-            if ($emailChanged) {
-                $user->sendEmailVerificationNotification();
-                $request->session()->flash('warning', $user->name . ' updated. A verification email was sent to the new address.');
-            } else {
-                $request->session()->flash('success', $user->name . ' updated');
-            }
+            $request->session()->flash('success', $user->name . ' updated');
         }else{
             $request->session()->flash('error', $user->name . ' not updated');
         }
@@ -107,12 +96,10 @@ class UsersController extends Controller
         ]);
 
         $user->email = $validated['email'];
-        $user->email_verified_at = null;
 
         if($user->save())
         {
-            $user->sendEmailVerificationNotification();
-            $request->session()->flash('warning', $user->name . ' email changed. A fresh verification email was sent.');
+            $request->session()->flash('success', $user->name . ' email changed.');
         }else{
             $request->session()->flash('error', $user->name . ' email was not changed');
         }
@@ -136,6 +123,6 @@ class UsersController extends Controller
         $user->roles()->detach();
         $user->delete();
 
-        return redirect()->route('users.index');
+        return redirect()->route('users.index')->with('success', $user->name . ' deleted.');
     }
 }

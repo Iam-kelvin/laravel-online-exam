@@ -19,7 +19,6 @@
                         <th>Country</th>
                         <th>City</th>
                         <th>Level</th>
-                        <th>Verified</th>
                         <th>Roles</th>
                         <th>Action</th>
                     </tr>
@@ -36,11 +35,6 @@
                                 {{ $user->school_level ?: $user->level }}
                                 <span class="text-muted d-block">{{ $user->class_year ?: $user->grade }}</span>
                             </td>
-                            <td>
-                                <span class="badge badge-{{ $user->hasVerifiedEmail() ? 'success' : 'warning' }}">
-                                    {{ $user->hasVerifiedEmail() ? 'Verified' : 'Pending' }}
-                                </span>
-                            </td>
                             <td>{{ $user->roles->pluck('name')->join(', ') }}</td>
                             <td>
                                 <div class="dashboard-actions">
@@ -54,7 +48,8 @@
                                         <form action="{{ route('users.destroy', $user) }}" method="POST">
                                             @csrf
                                             @method('DELETE')
-                                            <button type="submit" class="btn btn-sm btn-danger">Delete</button>
+                                            <button type="submit" class="btn btn-sm btn-danger"
+                                                onclick="return confirm('Delete this user? This cannot be undone.')">Delete</button>
                                         </form>
                                     @endcan
                                 </div>

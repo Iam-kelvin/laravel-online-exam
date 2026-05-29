@@ -9,25 +9,12 @@
         </div>
     </div>
 
-    @if (! $user->hasVerifiedEmail())
-        <div class="verify-banner mb-4">
-            <div>
-                <strong>Confirm your email address</strong>
-                <p class="mb-0">We sent a verification link to {{ $user->email }}. Open the link to finish setting up your account.</p>
-            </div>
-            <form method="POST" action="{{ route('verification.resend') }}">
-                @csrf
-                <button type="submit" class="btn btn-success">Resend Email</button>
-            </form>
-        </div>
-    @endif
-
     <div class="settings-grid">
         <section class="content-panel">
             <div class="panel-header">
                 <div>
                     <h2 class="h5 mb-1">Profile</h2>
-                    <p class="text-muted mb-0">Changing email requires your current password and a new verification email.</p>
+                    <p class="text-muted mb-0">Changing email requires your current password.</p>
                 </div>
             </div>
 
