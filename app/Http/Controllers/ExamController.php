@@ -34,6 +34,11 @@ class ExamController extends Controller
             'subject_ids' => ['required', 'array', 'min:1'],
             'subject_ids.*' => ['integer', 'exists:subjects,id'],
             'exam_preset_id' => ['required', 'integer', 'exists:exam_presets,id'],
+        ], [
+            'subject_ids.required' => 'Choose at least one subject.',
+            'subject_ids.min' => 'Choose at least one subject.',
+            'exam_preset_id.required' => 'Choose a question count and time.',
+            'exam_preset_id.exists' => 'Choose an available question count and time.',
         ]);
 
         $selectedSubjectIds = collect($validated['subject_ids'])->map(fn ($id) => (int) $id)->unique()->values();

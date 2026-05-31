@@ -13,8 +13,11 @@
 
         <div class="row">
             <div class="col-lg-7 mb-4">
-                <div class="selection-card">
+                <div class="selection-card @error('subject_ids') border-danger @enderror">
                     <h2 class="h5 mb-3">Subjects</h2>
+                    @error('subject_ids')
+                        <div class="text-danger mb-3">{{ $message }}</div>
+                    @enderror
 
                     @forelse ($subjects as $subject)
                         <label class="d-flex align-items-center justify-content-between border rounded p-3 mb-2">
@@ -32,8 +35,11 @@
             </div>
 
             <div class="col-lg-5 mb-4">
-                <div class="selection-card">
+                <div class="selection-card @error('exam_preset_id') border-danger @enderror">
                     <h2 class="h5 mb-3">Question Count & Time</h2>
+                    @error('exam_preset_id')
+                        <div class="text-danger mb-3">{{ $message }}</div>
+                    @enderror
 
                     @forelse ($presets as $preset)
                         <label class="d-flex align-items-center justify-content-between border rounded p-3 mb-2">

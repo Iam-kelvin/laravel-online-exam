@@ -15,6 +15,7 @@ class QuestionController extends Controller
     public function index()
     {
         $subjects = Subject::query()
+            ->where(fn ($query) => $query->where('active', true)->orHas('questions'))
             ->with(['questions' => fn ($query) => $query->latest()])
             ->withCount('questions')
             ->orderBy('name')
