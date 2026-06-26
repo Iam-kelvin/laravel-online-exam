@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
@@ -24,8 +25,20 @@ class AccountController extends Controller
     {
         $user = $request->user();
 
+        $request->merge([
+            'display_handle' => User::normalizeDisplayHandle($request->input('display_handle')),
+        ]);
+
         $validated = $request->validateWithBag('profile', [
             'name' => ['required', 'string', 'max:255'],
+            'display_handle' => [
+                'nullable',
+                'string',
+                'min:3',
+                'max:30',
+                'regex:/^[A-Za-z0-9._]+$/',
+                Rule::unique('users', 'display_handle')->ignore($user->id),
+            ],
             'email' => ['required', 'string', 'email', 'max:255', Rule::unique('users')->ignore($user->id)],
         ]);
 
@@ -40,6 +53,7 @@ class AccountController extends Controller
         }
 
         $user->name = $validated['name'];
+        $user->display_handle = $validated['display_handle'] ?? null;
         $user->save();
 
         if ($emailChanged) {

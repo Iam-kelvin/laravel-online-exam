@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Providers\RouteServiceProvider;
 use App\Models\User;
 use Illuminate\Foundation\Auth\RegistersUsers;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use App\Models\Role;
@@ -50,8 +51,11 @@ class RegisterController extends Controller
      */
     protected function validator(array $data)
     {
+        $data['display_handle'] = User::normalizeDisplayHandle($data['display_handle'] ?? null);
+
         return Validator::make($data, [
             'name' => ['required', 'string', 'max:255'],
+            'display_handle' => ['nullable', 'string', 'min:3', 'max:30', 'regex:/^[A-Za-z0-9._]+$/', 'unique:users,display_handle'],
             'email' => ['required', 'string', 'email', 'max:255', 'unique:users'],
             'school_level' => ['required', 'string', 'max:255'],
             'class_year' => ['required', 'string', 'max:255'],
@@ -71,6 +75,7 @@ class RegisterController extends Controller
     {
         $user = User::create([
             'name' => $data['name'],
+            'display_handle' => $data['display_handle'] ?? null,
             'email' => $data['email'],
             'country' => $data['country_of_study'],
             'state' => $data['country_of_study'],
@@ -90,5 +95,10 @@ class RegisterController extends Controller
         $user->roles()->attach($role);
 
         return $user;
+    }
+
+    protected function registered(Request $request, $user)
+    {
+        return redirect()->intended($this->redirectPath());
     }
 }

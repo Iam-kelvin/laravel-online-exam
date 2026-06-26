@@ -26,12 +26,16 @@ class SubjectController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255|unique:subjects,name',
+            'bank_type' => ['required', 'in:' . implode(',', array_keys(Subject::TYPES))],
+            'description' => ['nullable', 'string', 'max:255'],
             'active' => 'nullable|boolean',
         ]);
 
         Subject::create([
             'name' => $validated['name'],
             'slug' => $this->makeUniqueSlug($validated['name']),
+            'bank_type' => $validated['bank_type'],
+            'description' => $validated['description'] ?? null,
             'active' => $request->boolean('active'),
         ]);
 
@@ -53,12 +57,16 @@ class SubjectController extends Controller
     {
         $validated = $request->validate([
             'name' => 'required|string|max:255|unique:subjects,name,' . $subject->id,
+            'bank_type' => ['required', 'in:' . implode(',', array_keys(Subject::TYPES))],
+            'description' => ['nullable', 'string', 'max:255'],
             'active' => 'nullable|boolean',
         ]);
 
         $subject->update([
             'name' => $validated['name'],
             'slug' => $this->makeUniqueSlug($validated['name'], $subject->id),
+            'bank_type' => $validated['bank_type'],
+            'description' => $validated['description'] ?? null,
             'active' => $request->boolean('active'),
         ]);
 

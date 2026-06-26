@@ -16,6 +16,27 @@
         </div>
     </div>
 
+    <div class="content-panel fact-panel fact-panel-prominent mb-4">
+        <div class="panel-header">
+            <div>
+                <h2 class="h5 mb-1">Quick Spark</h2>
+                <p class="text-muted mb-0">Facts and quotes while you warm up.</p>
+            </div>
+        </div>
+
+        @if($facts->isNotEmpty())
+            <div id="factRotator" class="fact-rotator">
+                <span class="fact-kind">{{ ucfirst($facts->first()->kind) }}</span>
+                <div>
+                    <h3 class="h5 mb-1">{{ $facts->first()->title }}</h3>
+                    <p class="mb-0">{{ $facts->first()->body }}</p>
+                </div>
+            </div>
+        @else
+            <div class="empty-state">Fresh facts will show here soon.</div>
+        @endif
+    </div>
+
     <div class="row">
         <div class="col-md-4 mb-4">
             <div class="learner-stat">
@@ -42,27 +63,42 @@
             <div class="content-panel h-100">
                 <div class="panel-header">
                     <div>
-                        <h2 class="h5 mb-1">Pick Your Practice</h2>
-                        <p class="text-muted mb-0">These subject banks are available for your next exam.</p>
+                        <h2 class="h5 mb-1">Pick Your Lane</h2>
+                        <p class="text-muted mb-0">Academic exams stay separate from fun challenge quizzes.</p>
                     </div>
-                    <a href="{{ route('exam.start') }}" class="btn btn-sm btn-primary">Choose Subjects</a>
+                    <a href="{{ route('exam.start') }}" class="btn btn-sm btn-primary">Choose Banks</a>
                 </div>
 
-                <div class="subject-grid">
-                    @forelse ($subjects as $subject)
-                        <div class="subject-tile learner-subject">
-                            <span>{{ $subject->name }}</span>
-                            <strong>{{ $subject->questions_count }}</strong>
+                @foreach(\App\Models\Subject::TYPES as $type => $label)
+                    @php
+                        $banks = $bankGroups->get($type, collect())->take(6);
+                    @endphp
+
+                    @if($banks->isNotEmpty())
+                        <div class="bank-preview mb-3">
+                            <div class="bank-section-title">{{ $label }}</div>
+                            <div class="subject-grid">
+                                @foreach ($banks as $subject)
+                                    <div class="subject-tile learner-subject">
+                                        <span>{{ $subject->name }}</span>
+                                        @can('manage-questions')
+                                            <strong>{{ $subject->questions_count }}</strong>
+                                        @endcan
+                                    </div>
+                                @endforeach
+                            </div>
                         </div>
-                    @empty
-                        <div class="empty-state">No subjects are available yet.</div>
-                    @endforelse
-                </div>
+                    @endif
+                @endforeach
+
+                @if($bankGroups->isEmpty())
+                    <div class="empty-state">No exam banks are available yet.</div>
+                @endif
             </div>
         </div>
 
         <div class="col-lg-5 mb-4">
-            <div class="content-panel h-100">
+            <div class="content-panel mb-4">
                 <div class="panel-header">
                     <div>
                         <h2 class="h5 mb-1">Available Exam Lengths</h2>
@@ -80,6 +116,34 @@
                         <div class="empty-state">No exam lengths are available yet.</div>
                     @endforelse
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-lg-6 mb-4">
+            <div class="content-panel h-100">
+                <div class="panel-header">
+                    <div>
+                        <h2 class="h5 mb-1">This Week's Top Scorers</h2>
+                        <p class="text-muted mb-0">Fresh competition for the current week.</p>
+                    </div>
+                </div>
+
+                @include('partials.leaderboard', ['attempts' => $weeklyLeaders])
+            </div>
+        </div>
+
+        <div class="col-lg-6 mb-4">
+            <div class="content-panel h-100">
+                <div class="panel-header">
+                    <div>
+                        <h2 class="h5 mb-1">CrazyExam Hall of Fame</h2>
+                        <p class="text-muted mb-0">The scores everyone is chasing.</p>
+                    </div>
+                </div>
+
+                @include('partials.leaderboard', ['attempts' => $allTimeLeaders])
             </div>
         </div>
     </div>
@@ -127,3 +191,25 @@
         </div>
     </div>
 @endsection
+
+@push('scripts')
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var rotator = document.getElementById('factRotator');
+            var facts = @json($factItems);
+
+            if (! rotator || facts.length < 2) {
+                return;
+            }
+
+            var index = 0;
+
+            window.setInterval(function () {
+                index = (index + 1) % facts.length;
+                rotator.querySelector('.fact-kind').textContent = facts[index].kind;
+                rotator.querySelector('h3').textContent = facts[index].title;
+                rotator.querySelector('p').textContent = facts[index].body;
+            }, 9000);
+        });
+    </script>
+@endpush

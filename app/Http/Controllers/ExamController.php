@@ -9,23 +9,45 @@ use App\Models\ExamAttempt;
 use App\Models\ExamPreset;
 use App\Models\Question;
 use App\Models\Subject;
+use App\Services\LeaderboardService;
 
 class ExamController extends Controller
 {
-    public function start()
+    public function start(Request $request, LeaderboardService $leaderboard)
     {
         $subjects = Subject::query()
             ->where('active', true)
             ->withCount('questions')
+            ->orderBy('bank_type')
             ->orderBy('name')
             ->get();
+        $subjectGroups = $subjects->groupBy('bank_type');
+        $bankLeaders = $subjects->mapWithKeys(function (Subject $subject) use ($leaderboard) {
+            return [$subject->id => $leaderboard->topForSubject($subject, 1)->first()];
+        });
 
         $presets = ExamPreset::query()
             ->where('active', true)
             ->orderBy('question_count')
             ->get();
 
-        return view('exam.start', compact('subjects', 'presets'));
+        $selectedSubjectIds = collect($request->query('subject_ids', []))
+            ->map(fn ($id) => (int) $id)
+            ->filter()
+            ->values()
+            ->all();
+        $selectedPresetId = (int) $request->query('exam_preset_id', 0);
+        $comboSource = $request->query('combo');
+
+        return view('exam.start', compact(
+            'subjects',
+            'subjectGroups',
+            'bankLeaders',
+            'presets',
+            'selectedSubjectIds',
+            'selectedPresetId',
+            'comboSource'
+        ));
     }
 
     public function store(Request $request)
@@ -39,6 +61,9 @@ class ExamController extends Controller
             'subject_ids.min' => 'Choose at least one subject.',
             'exam_preset_id.required' => 'Choose a question count and time.',
             'exam_preset_id.exists' => 'Choose an available question count and time.',
+        ], [
+            'subject_ids' => 'subject',
+            'exam_preset_id' => 'question count and time',
         ]);
 
         $selectedSubjectIds = collect($validated['subject_ids'])->map(fn ($id) => (int) $id)->unique()->values();
@@ -137,6 +162,7 @@ class ExamController extends Controller
         $score = 0;
 
         $attempt->load('questions');
+        $submittedAt = now();
 
         foreach ($attempt->questions as $question) {
             $selectedAnswer = $answers[$question->id] ?? null;
@@ -154,7 +180,8 @@ class ExamController extends Controller
 
         $attempt->update([
             'score' => $score,
-            'submitted_at' => now(),
+            'time_used_seconds' => max(1, min($attempt->duration_seconds, $attempt->started_at->diffInSeconds($submittedAt))),
+            'submitted_at' => $submittedAt,
         ]);
 
         return redirect()->route('exam.review', $attempt)->with('success', 'Exam submitted successfully.');

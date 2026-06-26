@@ -18,6 +18,7 @@ class QuestionController extends Controller
             ->where(fn ($query) => $query->where('active', true)->orHas('questions'))
             ->with(['questions' => fn ($query) => $query->latest()])
             ->withCount('questions')
+            ->orderBy('bank_type')
             ->orderBy('name')
             ->get();
 
@@ -36,7 +37,7 @@ class QuestionController extends Controller
      */
     public function create()
     {
-        $subjects = Subject::orderBy('name')->get();
+        $subjects = Subject::orderBy('bank_type')->orderBy('name')->get();
 
         return view('admin.questions.create', compact('subjects'));
     }
@@ -83,7 +84,7 @@ class QuestionController extends Controller
      */
     public function edit(Question $question)
     {
-        $subjects = Subject::orderBy('name')->get();
+        $subjects = Subject::orderBy('bank_type')->orderBy('name')->get();
 
         return view('admin.questions.edit', compact('question', 'subjects'));
     }

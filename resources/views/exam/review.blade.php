@@ -24,6 +24,7 @@
         </div>
         <div class="mt-3 mt-md-0">
             <a href="{{ route('exam.results') }}" class="btn btn-outline-secondary">Back to Results</a>
+            <a href="{{ $attempt->shortLink() }}" class="btn btn-success" target="_blank" rel="noopener">Share Card</a>
             <a href="{{ route('exam.start') }}" class="btn btn-primary">Take Another Exam</a>
         </div>
     </div>

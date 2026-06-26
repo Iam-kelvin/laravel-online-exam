@@ -7,9 +7,11 @@ use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\QuestionController;
 use App\Http\Controllers\Admin\SubjectController;
 use App\Http\Controllers\Admin\UsersController;
+use App\Http\Controllers\CommunityController;
 use App\Http\Controllers\ExamController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ImportExportController;
+use App\Http\Controllers\ReportCardController;
 use App\Models\ExamPreset;
 use App\Models\Question;
 use App\Models\Subject;
@@ -35,6 +37,9 @@ Route::get('/', function () {
     ]);
 });
 
+Route::get('/s/{token}', [ReportCardController::class, 'show'])->name('reports.show');
+Route::get('/s/{token}/take', [ReportCardController::class, 'takeCombo'])->middleware('auth')->name('reports.take');
+
 Auth::routes(['verify' => false]);
 
 Route::get('/home', [HomeController::class, 'index'])->name('home');
@@ -43,6 +48,10 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/account/settings', [AccountController::class, 'edit'])->name('account.edit');
     Route::patch('/account/profile', [AccountController::class, 'updateProfile'])->name('account.profile.update');
     Route::patch('/account/password', [AccountController::class, 'updatePassword'])->name('account.password.update');
+
+    Route::get('/community', [CommunityController::class, 'index'])->name('community.index');
+    Route::post('/community', [CommunityController::class, 'store'])->name('community.store');
+    Route::post('/community/{post}/comments', [CommunityController::class, 'comment'])->name('community.comments.store');
 });
 
 Route::group(['namespace' => 'App\Http\Controllers\Admin', 'prefix' => 'admin', 'middleware' => ['auth', 'can:manage-users']], function(){

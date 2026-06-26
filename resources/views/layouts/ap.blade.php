@@ -22,13 +22,14 @@
                 <a class="sidebar-link {{ request()->routeIs('home') ? 'active' : '' }}" href="{{ route('home') }}">Dashboard</a>
                 <a class="sidebar-link {{ request()->routeIs('exam.start') || request()->routeIs('exam.take') ? 'active' : '' }}" href="{{ route('exam.start') }}">Take Exam</a>
                 <a class="sidebar-link {{ request()->routeIs('exam.results') || request()->routeIs('exam.review') ? 'active' : '' }}" href="{{ route('exam.results') }}">Results</a>
+                <a class="sidebar-link {{ request()->routeIs('community.*') ? 'active' : '' }}" href="{{ route('community.index') }}">Community</a>
                 <a class="sidebar-link {{ request()->routeIs('account.*') ? 'active' : '' }}" href="{{ route('account.edit') }}">Account Settings</a>
 
                 @can('manage-questions')
                     <div class="sidebar-section">Admin</div>
                     <a class="sidebar-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}" href="{{ route('admin.dashboard') }}">Admin Dashboard</a>
                     <a class="sidebar-link {{ request()->routeIs('questions.*') ? 'active' : '' }}" href="{{ route('questions.index') }}">Question Bank</a>
-                    <a class="sidebar-link {{ request()->routeIs('subjects.*') ? 'active' : '' }}" href="{{ route('subjects.index') }}">Subjects</a>
+                    <a class="sidebar-link {{ request()->routeIs('subjects.*') ? 'active' : '' }}" href="{{ route('subjects.index') }}">Exam Banks</a>
                     <a class="sidebar-link {{ request()->routeIs('exam-presets.*') ? 'active' : '' }}" href="{{ route('exam-presets.index') }}">Durations</a>
                     <a class="sidebar-link {{ request()->is('importExportView') ? 'active' : '' }}" href="{{ url('/importExportView') }}">Import Questions</a>
                 @endcan
@@ -74,7 +75,15 @@
                         <div class="alert alert-danger" role="alert">
                             <ul class="mb-0">
                                 @foreach ($errors->all() as $error)
-                                    <li>{{ $error }}</li>
+                                    @php
+                                        $friendlyError = match ($error) {
+                                            'The exam preset id field is required.' => 'Choose a question count and time.',
+                                            'The selected exam preset id is invalid.' => 'Choose an available question count and time.',
+                                            'The subject ids field is required.' => 'Choose at least one exam bank.',
+                                            default => $error,
+                                        };
+                                    @endphp
+                                    <li>{{ $friendlyError }}</li>
                                 @endforeach
                             </ul>
                         </div>

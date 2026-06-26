@@ -9,11 +9,24 @@ class Subject extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['name', 'slug', 'active'];
+    public const TYPE_ACADEMIC = 'academic';
+    public const TYPE_CHALLENGE = 'challenge';
+
+    public const TYPES = [
+        self::TYPE_ACADEMIC => 'Academic Exam',
+        self::TYPE_CHALLENGE => 'Challenge Exam',
+    ];
+
+    protected $fillable = ['name', 'slug', 'bank_type', 'description', 'active'];
 
     protected $casts = [
         'active' => 'boolean',
     ];
+
+    public function getTypeLabelAttribute(): string
+    {
+        return self::TYPES[$this->bank_type] ?? 'Exam Bank';
+    }
 
     public function questions()
     {

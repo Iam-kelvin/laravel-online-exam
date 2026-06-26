@@ -3,7 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Models\ExamPreset;
+use App\Models\SiteFact;
 use App\Models\Subject;
+use App\Services\LeaderboardService;
 
 class HomeController extends Controller
 {
@@ -22,7 +24,7 @@ class HomeController extends Controller
      *
      * @return \Illuminate\Contracts\Support\Renderable
      */
-    public function index()
+    public function index(LeaderboardService $leaderboard)
     {
         $user = auth()->user();
         $recentAttempts = $user->examAttempts()
@@ -45,6 +47,8 @@ class HomeController extends Controller
             ->latest()
             ->first();
 
+        $facts = SiteFact::where('active', true)->inRandomOrder()->take(8)->get();
+
         return view('home', [
             'stats' => [
                 'completed_attempts' => $completedAttempts,
@@ -52,9 +56,23 @@ class HomeController extends Controller
                 'best_score' => $bestAttempt ? "{$bestAttempt->score} / {$bestAttempt->question_count}" : null,
                 'in_progress_attempt_id' => optional($inProgressAttempt)->id,
             ],
-            'subjects' => Subject::withCount('questions')->where('active', true)->orderBy('name')->take(8)->get(),
+            'bankGroups' => Subject::withCount('questions')
+                ->where('active', true)
+                ->whereNotNull('bank_type')
+                ->orderBy('bank_type')
+                ->orderBy('name')
+                ->get()
+                ->groupBy('bank_type'),
             'presets' => ExamPreset::where('active', true)->orderBy('question_count')->get(),
             'recentAttempts' => $recentAttempts,
+            'weeklyLeaders' => $leaderboard->weekly(),
+            'allTimeLeaders' => $leaderboard->allTime(),
+            'facts' => $facts,
+            'factItems' => $facts->map(fn ($fact) => [
+                'kind' => ucfirst($fact->kind),
+                'title' => $fact->title,
+                'body' => $fact->body,
+            ])->values(),
         ]);
     }
 }

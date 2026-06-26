@@ -41,6 +41,17 @@
                 </div>
 
                 <div class="form-group">
+                    <label for="display_handle">Public Handle</label>
+                    <input id="display_handle" type="text" class="form-control @error('display_handle', 'profile') is-invalid @enderror"
+                        name="display_handle" value="{{ old('display_handle', $user->display_handle ? '@' . $user->display_handle : '') }}"
+                        autocomplete="nickname" placeholder="@yourname">
+                    <small class="form-text text-muted">Optional. Share cards use this instead of your full name.</small>
+                    @error('display_handle', 'profile')
+                        <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
+                    @enderror
+                </div>
+
+                <div class="form-group">
                     <label for="profile-current-password">Current password</label>
                     <div class="password-input">
                         <input id="profile-current-password" type="password"

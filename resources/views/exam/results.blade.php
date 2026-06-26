@@ -41,6 +41,7 @@
                             <td class="text-right">
                                 @if($attempt->submitted_at)
                                     <a href="{{ route('exam.review', $attempt) }}" class="btn btn-sm btn-outline-primary">Review</a>
+                                    <a href="{{ $attempt->shortLink() }}" class="btn btn-sm btn-success" target="_blank" rel="noopener">Share Card</a>
                                 @else
                                     <a href="{{ route('exam.take', $attempt) }}" class="btn btn-sm btn-outline-secondary">Continue</a>
                                 @endif

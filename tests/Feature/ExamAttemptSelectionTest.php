@@ -54,6 +54,25 @@ class ExamAttemptSelectionTest extends TestCase
         $this->assertSame(3, (int) $subjectCounts[$math->id]);
     }
 
+    public function test_start_exam_uses_plain_validation_message_when_time_is_missing(): void
+    {
+        $user = User::factory()->create();
+        $suffix = uniqid();
+        $subject = Subject::create(['name' => "Biology Test {$suffix}", 'slug' => "biology-test-{$suffix}", 'active' => true]);
+
+        $this->createQuestion($subject, 1);
+
+        $response = $this->actingAs($user)->from(route('exam.start'))->post(route('exam.store'), [
+            'subject_ids' => [$subject->id],
+        ]);
+
+        $response
+            ->assertRedirect(route('exam.start'))
+            ->assertSessionHasErrors([
+                'exam_preset_id' => 'Choose a question count and time.',
+            ]);
+    }
+
     private function createQuestion(Subject $subject, int $index): Question
     {
         return Question::create([

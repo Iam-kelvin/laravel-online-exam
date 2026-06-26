@@ -21,6 +21,7 @@ class BulkImport implements ToModel, SkipsEmptyRows, WithHeadingRow
         $optionC = $this->value($row, ['option_c', 'c']);
         $optionD = $this->value($row, ['option_d', 'd']);
         $answer = $this->normalizeAnswer($this->value($row, ['answer', 'correct_answer']));
+        $bankType = $this->normalizeBankType($this->value($row, ['bank_type', 'type']));
 
         if (
             $subjectName === ''
@@ -36,7 +37,7 @@ class BulkImport implements ToModel, SkipsEmptyRows, WithHeadingRow
             ]);
         }
 
-        $subject = $this->subjectFor($subjectName);
+        $subject = $this->subjectFor($subjectName, $bankType);
 
         Question::updateOrCreate(
             [
@@ -53,6 +54,17 @@ class BulkImport implements ToModel, SkipsEmptyRows, WithHeadingRow
         );
 
         return null;
+    }
+
+    private function normalizeBankType(string $type): ?string
+    {
+        $normalized = Str::lower(trim($type));
+
+        return match ($normalized) {
+            Subject::TYPE_CHALLENGE, 'fun', 'quiz' => Subject::TYPE_CHALLENGE,
+            Subject::TYPE_ACADEMIC, 'school', 'serious' => Subject::TYPE_ACADEMIC,
+            default => null,
+        };
     }
 
     private function value(array $row, array $keys): string
@@ -80,7 +92,7 @@ class BulkImport implements ToModel, SkipsEmptyRows, WithHeadingRow
         };
     }
 
-    private function subjectFor(string $name): Subject
+    private function subjectFor(string $name, ?string $bankType): Subject
     {
         $cleanName = trim(preg_replace('/\s+/', ' ', $name));
         $existing = Subject::query()
@@ -88,12 +100,17 @@ class BulkImport implements ToModel, SkipsEmptyRows, WithHeadingRow
             ->first();
 
         if ($existing) {
+            if ($bankType && $existing->bank_type !== $bankType) {
+                $existing->update(['bank_type' => $bankType]);
+            }
+
             return $existing;
         }
 
         return Subject::create([
             'name' => $cleanName,
             'slug' => $this->makeUniqueSlug($cleanName),
+            'bank_type' => $bankType ?? Subject::TYPE_ACADEMIC,
             'active' => true,
         ]);
     }

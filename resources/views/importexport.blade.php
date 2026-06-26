@@ -4,7 +4,7 @@
     <div class="d-flex flex-wrap align-items-center justify-content-between mb-4">
         <div>
             <h1 class="h3 mb-1">Import Questions</h1>
-            <p class="text-muted mb-0">Upload CSV or Excel rows into subject question banks.</p>
+            <p class="text-muted mb-0">Upload CSV or Excel rows into academic or challenge question banks.</p>
         </div>
         <a href="{{ route('questions.index') }}" class="btn btn-outline-secondary mt-3 mt-md-0">Question Bank</a>
     </div>
@@ -23,6 +23,7 @@
             <code>option_b</code>, <code>option_c</code>, <code>option_d</code>,
             and <code>answer</code>. The answer may be <code>A</code>, <code>B</code>,
             <code>C</code>, <code>D</code>, or <code>option_a</code> through <code>option_d</code>.
+            Optional heading: <code>bank_type</code> with <code>academic</code> or <code>challenge</code>.
         </p>
 
         <form action="{{ route('import') }}" method="POST" enctype="multipart/form-data">

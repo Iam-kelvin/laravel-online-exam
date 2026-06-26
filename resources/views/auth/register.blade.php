@@ -49,6 +49,17 @@
                             @enderror
                         </div>
 
+                        <div class="form-group full-width">
+                            <label for="display_handle">Public Handle</label>
+                            <input id="display_handle" type="text" class="form-control @error('display_handle') is-invalid @enderror"
+                                name="display_handle" value="{{ old('display_handle') }}" autocomplete="nickname"
+                                placeholder="@yourname">
+                            <small class="form-text text-muted">Optional. Used on share cards instead of your full name.</small>
+                            @error('display_handle')
+                                <span class="invalid-feedback" role="alert"><strong>{{ $message }}</strong></span>
+                            @enderror
+                        </div>
+
                         <div class="form-group">
                             <label for="school_level">School Level</label>
                             <select id="school_level" class="form-control @error('school_level') is-invalid @enderror"
