@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\Question;
 use App\Models\Subject;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
 
 class QuestionSeeder extends Seeder
@@ -17,19 +18,14 @@ class QuestionSeeder extends Seeder
         $this->moveGeographyQuestions();
         $this->removeRetiredGeneralQuestions();
         $this->removeOldSampleQuestions();
+        $this->removeDuplicateQuestions();
 
         foreach ($this->questionBanks() as $subjectName => $questions) {
             $questions = $this->ensureMinimumQuestions($subjectName, $questions);
             $this->assertUniqueQuestionText($subjectName, $questions);
 
             $subject = $this->subjectFor($subjectName);
-
-            foreach ($questions as $question) {
-                Question::updateOrCreate(
-                    ['question' => $question['question']],
-                    array_merge($question, ['subject_id' => $subject->id])
-                );
-            }
+            $this->saveQuestions($subject, $questions);
         }
 
         $this->removeDuplicateQuestions();
@@ -1061,6 +1057,45 @@ class QuestionSeeder extends Seeder
             }
 
             $seen[$prompt] = true;
+        }
+    }
+
+    private function saveQuestions(Subject $subject, array $questions): void
+    {
+        $now = now();
+        $prompts = array_column($questions, 'question');
+        $existingQuestionIds = Question::whereIn('question', $prompts)->pluck('id', 'question');
+        $updates = [];
+        $inserts = [];
+
+        foreach ($questions as $question) {
+            $row = array_merge($question, [
+                'subject_id' => $subject->id,
+                'updated_at' => $now,
+            ]);
+
+            $existingId = $existingQuestionIds[$question['question']] ?? null;
+
+            if ($existingId) {
+                $updates[] = array_merge(['id' => $existingId], $row);
+                continue;
+            }
+
+            $inserts[] = array_merge($row, [
+                'created_at' => $now,
+            ]);
+        }
+
+        foreach (array_chunk($updates, 250) as $chunk) {
+            DB::table('questions')->upsert(
+                $chunk,
+                ['id'],
+                ['subject_id', 'question', 'option_a', 'option_b', 'option_c', 'option_d', 'answer', 'duration', 'updated_at']
+            );
+        }
+
+        foreach (array_chunk($inserts, 250) as $chunk) {
+            DB::table('questions')->insert($chunk);
         }
     }
 
