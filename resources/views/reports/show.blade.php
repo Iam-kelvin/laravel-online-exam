@@ -149,8 +149,10 @@
             }
         }
     </style>
+    @include('partials.theme-head')
 </head>
 <body>
+    @include('partials.theme-toggle', ['floating' => true])
     @php
         $isOwner = auth()->check() && auth()->id() === $attempt->user_id;
     @endphp
@@ -166,8 +168,8 @@
             <div class="report-card-body">
                 <div class="report-stat-grid">
                     <div class="report-stat">
-                        <span>Score</span>
-                        <strong>{{ $attempt->score }} / {{ $attempt->question_count }}</strong>
+                        <span>{{ $attempt->isRush() ? 'Correct answers' : 'Score' }}</span>
+                        <strong>{{ $attempt->isRush() ? $attempt->score : $attempt->score . ' / ' . $attempt->question_count }}</strong>
                     </div>
                     <div class="report-stat">
                         <span>Speed</span>
@@ -201,8 +203,8 @@
         @if($isOwner)
             <div class="report-actions">
                 <button type="button" class="btn btn-success" id="shareReport">Share Card</button>
-                <button type="button" class="btn btn-outline-light" id="downloadReport">Download Image</button>
-                <button type="button" class="btn btn-outline-light" id="copyReportLink">Copy Link</button>
+                <button type="button" class="btn btn-outline-secondary" id="downloadReport">Download Image</button>
+                <button type="button" class="btn btn-outline-secondary" id="copyReportLink">Copy Link</button>
             </div>
             <p class="report-action-note" id="reportActionNote">Share the link, download the image, or do both.</p>
         @endif

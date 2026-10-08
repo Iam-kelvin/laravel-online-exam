@@ -26,7 +26,7 @@
                 <tbody>
                     @forelse ($examAttempts as $attempt)
                         <tr>
-                            <td>#{{ $attempt->id }}</td>
+                            <td>#{{ $attempt->id }} @if($attempt->isRush()) <span class="badge badge-warning">Rush</span> @endif</td>
                             <td>{{ $attempt->subjects->pluck('name')->join(', ') }}</td>
                             <td>
                                 @if($attempt->submitted_at)
@@ -36,7 +36,7 @@
                                 @endif
                             </td>
                             <td>{{ $attempt->question_count }}</td>
-                            <td>{{ intdiv($attempt->duration_seconds, 60) }} mins</td>
+                            <td>{{ $attempt->durationLabel() }}</td>
                             <td>{{ optional($attempt->submitted_at)->format('M j, Y g:i A') ?? 'Not submitted' }}</td>
                             <td class="text-right">
                                 @if($attempt->submitted_at)

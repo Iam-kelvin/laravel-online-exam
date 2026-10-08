@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\ExamPreset;
 use App\Models\SiteFact;
 use App\Models\Subject;
 use App\Services\LeaderboardService;
@@ -63,7 +62,6 @@ class HomeController extends Controller
                 ->orderBy('name')
                 ->get()
                 ->groupBy('bank_type'),
-            'presets' => ExamPreset::where('active', true)->orderBy('question_count')->get(),
             'recentAttempts' => $recentAttempts,
             'weeklyLeaders' => $leaderboard->weekly(),
             'allTimeLeaders' => $leaderboard->allTime(),

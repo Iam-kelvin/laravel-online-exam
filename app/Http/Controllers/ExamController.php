@@ -5,15 +5,16 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Validation\Rule;
 use App\Models\ExamAttempt;
-use App\Models\ExamPreset;
+use App\Models\ExamAttemptQuestion;
 use App\Models\Question;
 use App\Models\Subject;
-use App\Services\LeaderboardService;
+use App\Services\RushSounds;
 
 class ExamController extends Controller
 {
-    public function start(Request $request, LeaderboardService $leaderboard)
+    public function start(Request $request)
     {
         $subjects = Subject::query()
             ->where('active', true)
@@ -22,48 +23,62 @@ class ExamController extends Controller
             ->orderBy('name')
             ->get();
         $subjectGroups = $subjects->groupBy('bank_type');
-        $bankLeaders = $subjects->mapWithKeys(function (Subject $subject) use ($leaderboard) {
-            return [$subject->id => $leaderboard->topForSubject($subject, 1)->first()];
-        });
-
-        $presets = ExamPreset::query()
-            ->where('active', true)
-            ->orderBy('question_count')
-            ->get();
 
         $selectedSubjectIds = collect($request->query('subject_ids', []))
             ->map(fn ($id) => (int) $id)
             ->filter()
             ->values()
             ->all();
-        $selectedPresetId = (int) $request->query('exam_preset_id', 0);
+        $selectedMode = $request->query('mode') === 'rush' ? 'rush' : 'standard';
+        $selectedQuestionCount = (int) $request->query('question_count', 10);
+        $selectedDuration = (int) $request->query('duration_seconds', $selectedMode === 'rush' ? 60 : 300);
+        if ($selectedMode === 'rush') {
+            $selectedDuration = max(15, min(180, (int) round($selectedDuration / 15) * 15));
+        }
         $comboSource = $request->query('combo');
 
         return view('exam.start', compact(
             'subjects',
             'subjectGroups',
-            'bankLeaders',
-            'presets',
             'selectedSubjectIds',
-            'selectedPresetId',
+            'selectedMode',
+            'selectedQuestionCount',
+            'selectedDuration',
             'comboSource'
         ));
     }
 
     public function store(Request $request)
     {
+        if ($request->has('duration_value')) {
+            $durationInput = $request->validate([
+                'duration_value' => ['required', 'numeric', 'min:0.01', 'max:86400'],
+                'duration_unit' => ['required', Rule::in(['seconds', 'minutes'])],
+            ]);
+            $seconds = (float) $durationInput['duration_value'] * ($durationInput['duration_unit'] === 'minutes' ? 60 : 1);
+            $request->merge(['duration_seconds' => (int) round($seconds)]);
+        }
+
         $validated = $request->validate([
-            'subject_ids' => ['required', 'array', 'min:1'],
-            'subject_ids.*' => ['integer', 'exists:subjects,id'],
-            'exam_preset_id' => ['required', 'integer', 'exists:exam_presets,id'],
+            'mode' => ['required', Rule::in(['standard', 'rush'])],
+            'subject_ids' => ['required', 'array', 'min:1', $request->input('mode') === 'rush' ? 'max:1' : 'max:100'],
+            'subject_ids.*' => ['integer', 'distinct', Rule::exists('subjects', 'id')->where('active', true)],
+            'question_count' => ['exclude_if:mode,rush', 'required', 'integer', 'min:1', 'max:10000'],
+            'duration_seconds' => $request->input('mode') === 'rush'
+                ? ['required', 'integer', Rule::in(range(15, 180, 15))]
+                : ['required', 'integer', 'min:1', 'max:86400'],
         ], [
             'subject_ids.required' => 'Choose at least one subject.',
             'subject_ids.min' => 'Choose at least one subject.',
-            'exam_preset_id.required' => 'Choose a question count and time.',
-            'exam_preset_id.exists' => 'Choose an available question count and time.',
+            'subject_ids.max' => 'Rush exams use exactly one subject.',
+            'subject_ids.*.exists' => 'Choose an active subject.',
+            'question_count.required' => 'Choose how many questions to answer.',
+            'duration_seconds.required' => 'Choose an exam duration.',
+            'duration_seconds.in' => 'Choose a Rush duration from 15 to 180 seconds, in 15-second steps.',
         ], [
             'subject_ids' => 'subject',
-            'exam_preset_id' => 'question count and time',
+            'question_count' => 'question count',
+            'duration_seconds' => 'duration in seconds',
         ]);
 
         $selectedSubjectIds = collect($validated['subject_ids'])->map(fn ($id) => (int) $id)->unique()->values();
@@ -82,11 +97,11 @@ class ExamController extends Controller
             return back()->withInput()->with('error', 'Choose at least one active subject.');
         }
 
-        $preset = ExamPreset::query()
-            ->where('active', true)
-            ->findOrFail($validated['exam_preset_id']);
-
-        $selectedQuestions = $this->selectQuestions($subjects, $preset->question_count);
+        $requestedCount = $validated['mode'] === 'rush'
+            ? Question::where('subject_id', $subjects->first()->id)->count()
+            : (int) $validated['question_count'];
+        $duration = (int) $validated['duration_seconds'];
+        $selectedQuestions = $this->selectQuestions($subjects, $requestedCount);
 
         if ($selectedQuestions->isEmpty()) {
             return back()->withInput()->with('error', 'No questions are available for the selected subjects yet.');
@@ -94,15 +109,15 @@ class ExamController extends Controller
 
         $now = now();
 
-        $attempt = DB::transaction(function () use ($subjects, $preset, $selectedQuestions, $now) {
+        $attempt = DB::transaction(function () use ($subjects, $validated, $requestedCount, $duration, $selectedQuestions, $now) {
             $attempt = ExamAttempt::create([
                 'user_id' => auth()->id(),
-                'exam_preset_id' => $preset->id,
-                'requested_question_count' => $preset->question_count,
+                'mode' => $validated['mode'],
+                'requested_question_count' => $requestedCount,
                 'question_count' => $selectedQuestions->count(),
-                'duration_seconds' => $preset->duration_seconds,
+                'duration_seconds' => $duration,
                 'started_at' => $now,
-                'ends_at' => $now->copy()->addSeconds($preset->duration_seconds),
+                'ends_at' => $now->copy()->addSeconds($duration),
             ]);
 
             $attempt->subjects()->sync($subjects->pluck('id')->all());
@@ -121,12 +136,19 @@ class ExamController extends Controller
                 ]);
             });
 
+            // Preparing a large question bank should not consume the learner's time.
+            $startedAt = now();
+            $attempt->update([
+                'started_at' => $startedAt,
+                'ends_at' => $startedAt->copy()->addSeconds($duration),
+            ]);
+
             return $attempt;
         });
 
         $redirect = redirect()->route('exam.take', $attempt);
 
-        if ($attempt->question_count < $attempt->requested_question_count && auth()->user()->can('manage-questions')) {
+        if ($attempt->question_count < $attempt->requested_question_count) {
             return $redirect->with(
                 'warning',
                 "{$attempt->question_count} questions were available from the selected subjects, so this attempt was created with {$attempt->question_count} questions."
@@ -136,7 +158,7 @@ class ExamController extends Controller
         return $redirect;
     }
 
-    public function take(ExamAttempt $attempt)
+    public function take(ExamAttempt $attempt, RushSounds $sounds)
     {
         abort_unless($attempt->user_id === auth()->id(), 403);
 
@@ -147,7 +169,74 @@ class ExamController extends Controller
         $attempt->load(['subjects', 'questions.subject']);
         $endsAt = $attempt->ends_at->toIso8601String();
 
+        if ($attempt->isRush()) {
+            if (now()->greaterThanOrEqualTo($attempt->ends_at)) {
+                return $this->submit(request(), $attempt);
+            }
+
+            $wrongSounds = $sounds->wrongAnswers();
+            $introSound = $sounds->intro();
+
+            return view('exam.rush', compact('attempt', 'endsAt', 'wrongSounds', 'introSound'));
+        }
+
         return view('exam.take', compact('attempt', 'endsAt'));
+    }
+
+    public function answer(Request $request, ExamAttempt $attempt, ExamAttemptQuestion $question)
+    {
+        abort_unless($attempt->user_id === auth()->id(), 403);
+        abort_unless($attempt->isRush() && $question->exam_attempt_id === $attempt->id, 404);
+
+        $validated = $request->validate([
+            'answer' => ['required', Rule::in(['option_a', 'option_b', 'option_c', 'option_d'])],
+        ]);
+
+        return DB::transaction(function () use ($attempt, $question, $validated) {
+            $attempt = ExamAttempt::whereKey($attempt->id)->lockForUpdate()->firstOrFail();
+
+            if ($attempt->submitted_at || now()->greaterThanOrEqualTo($attempt->ends_at)) {
+                if (! $attempt->submitted_at) {
+                    $this->finishAttempt($attempt);
+                }
+
+                return response()->json([
+                    'message' => 'This rush has finished.',
+                    'review_url' => route('exam.review', $attempt),
+                ], 410);
+            }
+
+            $question->refresh();
+
+            // A retry returns the first result; an answer can never be changed after marking.
+            if ($question->selected_answer === null) {
+                $nextId = $attempt->questions()->whereNull('selected_answer')->value('id');
+                abort_unless($nextId === $question->id, 409, 'Answer the current question first.');
+
+                $question->update([
+                    'selected_answer' => $validated['answer'],
+                    'is_correct' => $validated['answer'] === $question->correct_answer,
+                ]);
+            }
+
+            $answered = $attempt->questions()->whereNotNull('selected_answer')->count();
+            $score = $attempt->questions()->where('is_correct', true)->count();
+            $finished = $answered === $attempt->question_count;
+
+            if ($finished) {
+                $this->finishAttempt($attempt);
+            }
+
+            return response()->json([
+                'is_correct' => $question->is_correct,
+                'selected_answer' => $question->selected_answer,
+                'correct_answer' => $question->correct_answer,
+                'answered' => $answered,
+                'score' => $score,
+                'finished' => $finished,
+                'review_url' => route('exam.review', $attempt),
+            ]);
+        });
     }
 
     public function submit(Request $request, ExamAttempt $attempt)
@@ -158,31 +247,30 @@ class ExamController extends Controller
             return redirect()->route('exam.review', $attempt)->with('warning', 'This exam has already been submitted.');
         }
 
-        $answers = $request->input('answers', []);
-        $score = 0;
+        $answers = $attempt->isRush() ? [] : ($request->validate([
+            'answers' => ['sometimes', 'array'],
+            'answers.*' => [Rule::in(['option_a', 'option_b', 'option_c', 'option_d'])],
+        ])['answers'] ?? []);
 
-        $attempt->load('questions');
-        $submittedAt = now();
+        DB::transaction(function () use ($attempt, $answers) {
+            $attempt = ExamAttempt::whereKey($attempt->id)->lockForUpdate()->firstOrFail();
 
-        foreach ($attempt->questions as $question) {
-            $selectedAnswer = $answers[$question->id] ?? null;
-            $isCorrect = $selectedAnswer !== null && $selectedAnswer === $question->correct_answer;
-
-            $question->update([
-                'selected_answer' => $selectedAnswer,
-                'is_correct' => $isCorrect,
-            ]);
-
-            if ($isCorrect) {
-                $score++;
+            if ($attempt->submitted_at) {
+                return;
             }
-        }
 
-        $attempt->update([
-            'score' => $score,
-            'time_used_seconds' => max(1, min($attempt->duration_seconds, $attempt->started_at->diffInSeconds($submittedAt))),
-            'submitted_at' => $submittedAt,
-        ]);
+            if (! $attempt->isRush()) {
+                foreach ($attempt->questions as $question) {
+                    $selectedAnswer = $answers[$question->id] ?? null;
+                    $question->update([
+                        'selected_answer' => $selectedAnswer,
+                        'is_correct' => $selectedAnswer !== null && $selectedAnswer === $question->correct_answer,
+                    ]);
+                }
+            }
+
+            $this->finishAttempt($attempt);
+        });
 
         return redirect()->route('exam.review', $attempt)->with('success', 'Exam submitted successfully.');
     }
@@ -198,7 +286,7 @@ class ExamController extends Controller
         return view('exam.results', compact('examAttempts'));
     }
 
-    public function review(ExamAttempt $attempt)
+    public function review(ExamAttempt $attempt, RushSounds $sounds)
     {
         abort_unless($attempt->user_id === auth()->id(), 403);
 
@@ -206,9 +294,28 @@ class ExamController extends Controller
             return redirect()->route('exam.take', $attempt)->with('warning', 'Submit this exam before reviewing answers.');
         }
 
-        $attempt->load(['subjects', 'questions.subject']);
+        $attempt->load(['subjects', 'questions' => function ($query) use ($attempt) {
+            $query->with('subject');
+            if ($attempt->isRush()) {
+                $query->whereNotNull('selected_answer');
+            }
+        }]);
+        $resultSound = $attempt->isRush()
+            ? $sounds->result($attempt->score, $attempt->questions->count())
+            : null;
 
-        return view('exam.review', compact('attempt'));
+        return view('exam.review', compact('attempt', 'resultSound'));
+    }
+
+    private function finishAttempt(ExamAttempt $attempt): void
+    {
+        $submittedAt = now();
+        $attempt->questions()->whereNull('is_correct')->update(['is_correct' => false]);
+        $attempt->update([
+            'score' => $attempt->questions()->where('is_correct', true)->count(),
+            'time_used_seconds' => max(1, min($attempt->duration_seconds, $attempt->started_at->diffInSeconds($submittedAt))),
+            'submitted_at' => $submittedAt,
+        ]);
     }
 
     private function selectQuestions(Collection $subjects, int $requestedCount): Collection

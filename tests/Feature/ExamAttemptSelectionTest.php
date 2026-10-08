@@ -3,7 +3,6 @@
 namespace Tests\Feature;
 
 use App\Models\ExamAttempt;
-use App\Models\ExamPreset;
 use App\Models\Question;
 use App\Models\Subject;
 use App\Models\User;
@@ -21,12 +20,6 @@ class ExamAttemptSelectionTest extends TestCase
         $suffix = uniqid();
         $english = Subject::create(['name' => "English Test {$suffix}", 'slug' => "english-test-{$suffix}", 'active' => true]);
         $math = Subject::create(['name' => "Math Test {$suffix}", 'slug' => "math-test-{$suffix}", 'active' => true]);
-        $preset = ExamPreset::create([
-            'label' => '4 Questions',
-            'question_count' => 4,
-            'duration_seconds' => 240,
-            'active' => true,
-        ]);
 
         $this->createQuestion($english, 1);
 
@@ -36,7 +29,9 @@ class ExamAttemptSelectionTest extends TestCase
 
         $response = $this->actingAs($user)->post(route('exam.store'), [
             'subject_ids' => [$english->id, $math->id],
-            'exam_preset_id' => $preset->id,
+            'mode' => 'standard',
+            'question_count' => 4,
+            'duration_seconds' => 240,
         ]);
 
         $attempt = ExamAttempt::where('user_id', $user->id)->latest()->first();
@@ -44,6 +39,8 @@ class ExamAttemptSelectionTest extends TestCase
         $response->assertRedirect(route('exam.take', $attempt));
         $this->assertSame(4, $attempt->question_count);
         $this->assertSame(4, $attempt->requested_question_count);
+        $this->assertSame(240, $attempt->duration_seconds);
+        $this->assertNull($attempt->exam_preset_id);
 
         $subjectCounts = $attempt->questions()
             ->select('subject_id', DB::raw('count(*) as total'))
@@ -64,12 +61,14 @@ class ExamAttemptSelectionTest extends TestCase
 
         $response = $this->actingAs($user)->from(route('exam.start'))->post(route('exam.store'), [
             'subject_ids' => [$subject->id],
+            'mode' => 'standard',
+            'question_count' => 10,
         ]);
 
         $response
             ->assertRedirect(route('exam.start'))
             ->assertSessionHasErrors([
-                'exam_preset_id' => 'Choose a question count and time.',
+                'duration_seconds' => 'Choose an exam duration.',
             ]);
     }
 

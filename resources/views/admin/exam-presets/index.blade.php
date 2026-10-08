@@ -3,8 +3,8 @@
 @section('content')
     <div class="d-flex flex-wrap align-items-center justify-content-between mb-4">
         <div>
-            <h1 class="h3 mb-1">Durations</h1>
-            <p class="text-muted mb-0">Question count and time presets.</p>
+            <h1 class="h3 mb-1">Legacy Presets</h1>
+            <p class="text-muted mb-0">Presets are kept for past exams. New exams use the learner’s chosen question count and duration.</p>
         </div>
     </div>
 

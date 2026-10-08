@@ -226,11 +226,13 @@
             }
         }
     </style>
+    @include('partials.theme-head')
 </head>
 <body>
     <header class="site-header">
         <a href="{{ url('/') }}" class="brand"><strong>Crazy</strong>Exam</a>
         <nav class="nav-actions">
+            @include('partials.theme-toggle')
             @auth
                 <a href="{{ route('home') }}" class="nav-link-public">Dashboard</a>
                 @can('manage-questions')
@@ -274,8 +276,8 @@
                     <strong>{{ $stats['questions'] }}</strong>
                 </div>
                 <div class="stat-card">
-                    <span>Exam Lengths</span>
-                    <strong>{{ $stats['presets'] }}</strong>
+                    <span>Your Pace</span>
+                    <strong>Any time</strong>
                 </div>
             </div>
         </section>

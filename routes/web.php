@@ -12,7 +12,6 @@ use App\Http\Controllers\ExamController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ImportExportController;
 use App\Http\Controllers\ReportCardController;
-use App\Models\ExamPreset;
 use App\Models\Question;
 use App\Models\Subject;
 
@@ -32,7 +31,6 @@ Route::get('/', function () {
         'stats' => [
             'subjects' => Subject::where('active', true)->count(),
             'questions' => Question::count(),
-            'presets' => ExamPreset::where('active', true)->count(),
         ],
     ]);
 });
@@ -79,6 +77,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/exam/start', [ExamController::class, 'store'])->name('exam.store');
     Route::get('/exam/attempts/{attempt}', [ExamController::class, 'take'])->name('exam.take');
     Route::post('/exam/attempts/{attempt}/submit', [ExamController::class, 'submit'])->name('exam.submit');
+    Route::post('/exam/attempts/{attempt}/questions/{question}/answer', [ExamController::class, 'answer'])->name('exam.answer');
 });
 
 Route::middleware(['auth'])->group(function () {

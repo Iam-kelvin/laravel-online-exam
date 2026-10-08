@@ -6,10 +6,13 @@ CrazyExam is a Laravel exam practice platform for timed subject-based exams. Lea
 
 - Subject-based question banks.
 - Mixed-subject exam attempts with strict fallback rules when a selected subject does not have enough questions.
-- Fixed exam durations that are not changed by adding questions later.
+- Flexible question counts and durations, including 100 questions in 1 minute. A suggested 30 seconds per question never overrides the learner's chosen time.
+- Single-subject Rush exams with a default 60-second timer and 15–180-second choices in 15-second steps, instant marking, locked answers, live scores and streaks, and sound effects with a remembered mute setting.
+- Compact subject selection with Academic and Challenge categories, search, and selected-subject chips. Rush keeps Finish Rush visible on mobile, and reviews show only answered questions.
+- Light and dark themes that follow the system setting initially and remember the learner's choice across pages.
 - Timed attempts, saved answers, results, and score history.
 - Admin and moderator dashboards for managing users, subjects, questions, and exam presets.
-- Email verification before exam access.
+- Account access with optional email verification.
 - Forgot password, password reset, profile updates, and admin/moderator-assisted email recovery.
 - Responsive learner, auth, home, and admin interfaces.
 
@@ -81,6 +84,14 @@ Run the test suite:
 ```bash
 php artisan test
 ```
+
+## Rush Sounds
+
+Rush keeps the generated correct-answer tone. Wrong-answer clips (`.mp3`, `.wav`, `.ogg`, or `.m4a`) in `public/sounds/rush/wrong/` are discovered automatically and chosen randomly. That folder contains `faaaa.mp3`, `i-pour-you-spit.mp3`, and `shocked-sound-effect.mp3`. If a clip cannot play, Rush falls back to the generated wrong-answer tone.
+
+The page-entry clip is `public/sounds/rush/intro/lets-have-it-lets-have-it.mp3`. Results use `public/sounds/rush/results/studio-audience-awwww-sound-fx.mp3` when more than half of the answered questions are correct. At 50% or below, including no answers, they use `public/sounds/rush/results/you-dey-go-na.mp3`. The denominator is answered questions, not the entire question bank. These clips respect the mute setting. Page-entry audio retries on the first tap if autoplay is blocked, and results have a Play reaction button. Redeploy after adding clips to a serverless deployment.
+
+New exams use custom settings instead of duration presets. The legacy presets and their admin screen remain available for historical attempts. Run `php artisan migrate` when updating an existing installation to add the exam mode column.
 
 ## Deployment
 

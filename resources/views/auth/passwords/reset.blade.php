@@ -6,8 +6,10 @@
     <title>Reset Password | CrazyExam</title>
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
     <link href="{{ asset('css/auth.css') }}" rel="stylesheet">
+    @include('partials.theme-head')
 </head>
 <body class="auth-page">
+    @include('partials.theme-toggle', ['floating' => true])
     <main class="auth-shell">
         <section class="auth-story">
             <div class="auth-story-content">

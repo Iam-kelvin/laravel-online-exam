@@ -15,6 +15,7 @@ class ExamAttempt extends Model
         'share_token',
         'user_id',
         'exam_preset_id',
+        'mode',
         'requested_question_count',
         'question_count',
         'duration_seconds',
@@ -63,6 +64,19 @@ class ExamAttempt extends Model
         return $this->question_count > 0
             ? (int) round(($this->score / $this->question_count) * 100)
             : 0;
+    }
+
+    public function isRush(): bool
+    {
+        return $this->mode === 'rush';
+    }
+
+    public function durationLabel(): string
+    {
+        $minutes = intdiv($this->duration_seconds, 60);
+        $seconds = $this->duration_seconds % 60;
+
+        return $minutes > 0 ? $minutes . 'm' . ($seconds ? ' ' . $seconds . 's' : '') : $seconds . 's';
     }
 
     public function scoreForSubject(Subject $subject): int
@@ -178,6 +192,10 @@ class ExamAttempt extends Model
     public function reportHeadline(): string
     {
         $name = $this->publicDisplayName();
+        if ($this->isRush()) {
+            return "{$name} got {$this->score} right in a {$this->durationLabel()} Rush";
+        }
+
         $percent = $this->scorePercent();
         $subjects = $this->subjects->pluck('name')->filter()->values();
 
@@ -198,6 +216,12 @@ class ExamAttempt extends Model
 
     public function reportSubtitle(): string
     {
+        if ($this->isRush()) {
+            $answered = $this->questions->whereNotNull('selected_answer')->count();
+
+            return "{$this->examName()} · {$answered} answered in {$this->timeUsedLabel()}";
+        }
+
         $subjects = $this->subjects->pluck('name')->filter()->values();
 
         if ($subjects->count() > 2) {

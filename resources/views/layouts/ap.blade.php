@@ -9,6 +9,8 @@
 
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
     <link href="{{ asset('css/simple-sidebar.css') }}" rel="stylesheet">
+    @include('partials.theme-head')
+    <link href="{{ asset('css/exam.css') }}" rel="stylesheet">
     @stack('styles')
 </head>
 <body>
@@ -30,7 +32,7 @@
                     <a class="sidebar-link {{ request()->routeIs('admin.dashboard') ? 'active' : '' }}" href="{{ route('admin.dashboard') }}">Admin Dashboard</a>
                     <a class="sidebar-link {{ request()->routeIs('questions.*') ? 'active' : '' }}" href="{{ route('questions.index') }}">Question Bank</a>
                     <a class="sidebar-link {{ request()->routeIs('subjects.*') ? 'active' : '' }}" href="{{ route('subjects.index') }}">Exam Banks</a>
-                    <a class="sidebar-link {{ request()->routeIs('exam-presets.*') ? 'active' : '' }}" href="{{ route('exam-presets.index') }}">Durations</a>
+                    <a class="sidebar-link {{ request()->routeIs('exam-presets.*') ? 'active' : '' }}" href="{{ route('exam-presets.index') }}">Legacy Presets</a>
                     <a class="sidebar-link {{ request()->is('importExportView') ? 'active' : '' }}" href="{{ url('/importExportView') }}">Import Questions</a>
                 @endcan
 
@@ -56,6 +58,7 @@
                 <a class="topbar-brand" href="{{ url('/') }}"><strong>Crazy</strong>Exam</a>
 
                 <div class="topbar-actions">
+                    @include('partials.theme-toggle')
                     @auth
                         <span class="topbar-user">{{ Auth::user()->name }}</span>
                         <a href="{{ route('account.edit') }}" class="btn btn-sm btn-outline-secondary">Account</a>

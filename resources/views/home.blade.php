@@ -11,6 +11,7 @@
                     <a href="{{ route('exam.take', $stats['in_progress_attempt_id']) }}" class="btn btn-light">Resume Exam</a>
                 @endif
                 <a href="{{ route('exam.start') }}" class="btn btn-success">Start New Exam</a>
+                <a href="{{ route('exam.start', ['mode' => 'rush']) }}" class="btn btn-light">&#9889; Play Rush</a>
                 <a href="{{ route('exam.results') }}" class="btn btn-outline-light">View Results</a>
             </div>
         </div>
@@ -101,20 +102,16 @@
             <div class="content-panel mb-4">
                 <div class="panel-header">
                     <div>
-                        <h2 class="h5 mb-1">Available Exam Lengths</h2>
-                        <p class="text-muted mb-0">Pick the format that matches your time.</p>
+                        <h2 class="h5 mb-1">Choose your pace</h2>
+                        <p class="text-muted mb-0">Every exam has a timer you control.</p>
                     </div>
                 </div>
 
                 <div class="preset-list">
-                    @forelse ($presets as $preset)
-                        <div class="preset-row">
-                            <span>{{ $preset->label }}</span>
-                            <strong>{{ intdiv($preset->duration_seconds, 60) }} mins</strong>
-                        </div>
-                    @empty
-                        <div class="empty-state">No exam lengths are available yet.</div>
-                    @endforelse
+                    <div class="preset-row"><span>Practice exam</span><strong>Your questions. Your time.</strong></div>
+                    <p class="text-muted small mb-1">10 questions? We suggest 5 minutes. Want 100 questions in 1 minute? Go for it.</p>
+                    <div class="preset-row"><span>&#9889; Rush exam</span><strong>Beat the clock</strong></div>
+                    <p class="text-muted small mb-0">Pick one subject and answer as many as you can. Start with 60 seconds or set your own timer.</p>
                 </div>
             </div>
         </div>
@@ -171,7 +168,7 @@
                 <tbody>
                     @forelse ($recentAttempts as $attempt)
                         <tr>
-                            <td>{{ $attempt->subjects->pluck('name')->join(', ') }}</td>
+                            <td>{{ $attempt->subjects->pluck('name')->join(', ') }} @if($attempt->isRush()) <span class="badge badge-warning">Rush</span> @endif</td>
                             <td>{{ $attempt->submitted_at ? $attempt->score . ' / ' . $attempt->question_count : '-' }}</td>
                             <td>{{ $attempt->question_count }}</td>
                             <td>

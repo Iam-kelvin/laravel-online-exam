@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Models\ExamAttempt;
-use App\Models\ExamPreset;
 use App\Services\LeaderboardService;
 
 class ReportCardController extends Controller
@@ -42,26 +41,12 @@ class ReportCardController extends Controller
         $subjectIds = $attempt->subjects->pluck('id')->all();
         abort_if(empty($subjectIds), 404);
 
-        $presetId = null;
-
-        if ($attempt->exam_preset_id) {
-            $presetId = ExamPreset::query()
-                ->where('active', true)
-                ->whereKey($attempt->exam_preset_id)
-                ->value('id');
-        }
-
-        if (! $presetId) {
-            $presetId = ExamPreset::query()
-                ->where('active', true)
-                ->orderByRaw('ABS(question_count - ?)', [$attempt->requested_question_count])
-                ->value('id');
-        }
-
         return redirect()
             ->route('exam.start', [
                 'subject_ids' => $subjectIds,
-                'exam_preset_id' => $presetId,
+                'mode' => $attempt->isRush() ? 'rush' : 'standard',
+                'question_count' => $attempt->requested_question_count,
+                'duration_seconds' => $attempt->duration_seconds,
                 'combo' => $attempt->share_token,
             ])
             ->with('status', $attempt->publicDisplayName() . "'s combo is loaded. Start when ready.");

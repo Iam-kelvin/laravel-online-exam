@@ -48,7 +48,8 @@
 @push('scripts')
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            var endsAt = new Date(@json($endsAt)).getTime();
+            var remainingAtLoad = @json(max(0, $attempt->ends_at->getTimestamp() - microtime(true)));
+            var loadedAt = performance.now();
             var timer = document.getElementById('timer');
             var form = document.getElementById('exam-form');
             var submitted = false;
@@ -70,7 +71,7 @@
             }
 
             function tick() {
-                var remaining = Math.max(0, Math.floor((endsAt - Date.now()) / 1000));
+                var remaining = Math.max(0, Math.ceil(remainingAtLoad - (performance.now() - loadedAt) / 1000));
                 timer.textContent = formatTime(remaining);
 
                 if (remaining <= 0) {

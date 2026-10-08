@@ -1,0 +1,129 @@
+:root {
+    color-scheme: light;
+    --ce-background: #f4f7fb;
+    --ce-surface: #ffffff;
+    --ce-surface-alt: #f7fafc;
+    --ce-text: #102a43;
+    --ce-muted: #52606d;
+    --ce-border: #d9e2ec;
+    --ce-accent: #087d58;
+    --ce-accent-soft: #e8f7f1;
+    --ce-success: #15763b;
+    --ce-success-soft: #e7f6ed;
+    --ce-danger: #bc303b;
+    --ce-danger-soft: #fff0f0;
+}
+:root[data-theme="dark"] {
+    color-scheme: dark;
+    --ce-background: #0e1722;
+    --ce-surface: #182432;
+    --ce-surface-alt: #1e2d3e;
+    --ce-text: #e6edf5;
+    --ce-muted: #a9b9cb;
+    --ce-border: #35485c;
+    --ce-accent: #73dfb3;
+    --ce-accent-soft: #173d34;
+    --ce-success: #8ce0a9;
+    --ce-success-soft: #163c2c;
+    --ce-danger: #ffadb4;
+    --ce-danger-soft: #46232b;
+}
+html[data-theme] body { background: var(--ce-background); color: var(--ce-text); }
+html[data-theme] .card,
+html[data-theme] .selection-card,
+html[data-theme] .content-panel,
+html[data-theme] .dashboard-hero,
+html[data-theme] .metric-card,
+html[data-theme] .learner-stat,
+html[data-theme] .learner-subject,
+html[data-theme] .app-topbar,
+html[data-theme] .exam-timer,
+html[data-theme] .verify-banner,
+html[data-theme] .auth-card,
+html[data-theme] .stat-card,
+html[data-theme] .feature-card,
+html[data-theme] .story-panel,
+html[data-theme] .report-card,
+html[data-theme] .dropdown-menu,
+html[data-theme] .list-group-item { background: var(--ce-surface); color: var(--ce-text); border-color: var(--ce-border); }
+html[data-theme] .subject-tile,
+html[data-theme] .preset-row,
+html[data-theme] .community-comment,
+html[data-theme] .bank-jumpbar a,
+html[data-theme] .report-stat,
+html[data-theme] .report-share { background: var(--ce-surface-alt); color: var(--ce-text); border-color: var(--ce-border); }
+html[data-theme] .form-control,
+html[data-theme] .custom-select { background-color: var(--ce-surface); color: var(--ce-text); border-color: var(--ce-border); }
+html[data-theme] .form-control:disabled,
+html[data-theme] .form-control[readonly] { background-color: var(--ce-surface-alt); }
+html[data-theme] .form-control::placeholder { color: var(--ce-muted); }
+html[data-theme] .text-muted { color: var(--ce-muted) !important; }
+html[data-theme] .topbar-user,
+html[data-theme] .bank-section-title,
+html[data-theme] .metric-label,
+html[data-theme] .stat-card span,
+html[data-theme] .story-copy p,
+html[data-theme] .feature-card p,
+html[data-theme] .learner-stat span,
+html[data-theme] .leaderboard-player span,
+html[data-theme] .leaderboard-score span,
+html[data-theme] .empty-state,
+html[data-theme] .auth-helper,
+html[data-theme] .auth-footer,
+html[data-theme] .report-stat span,
+html[data-theme] .report-action-note,
+html[data-theme] .verify-banner p { color: var(--ce-muted); }
+html[data-theme] .metric-card strong,
+html[data-theme] .learner-stat strong,
+html[data-theme] .subject-tile span,
+html[data-theme] .preset-row span,
+html[data-theme] .leaderboard-player strong,
+html[data-theme] .leaderboard-score strong,
+html[data-theme] .topbar-brand,
+html[data-theme] .stat-card strong,
+html[data-theme] .report-stat strong,
+html[data-theme] .verify-banner strong { color: var(--ce-text); }
+html[data-theme] .border { border-color: var(--ce-border) !important; }
+html[data-theme] .panel-header,
+html[data-theme] .bank-preview + .bank-preview,
+html[data-theme] .leaderboard-row,
+html[data-theme] .community-comments,
+html[data-theme] .table th,
+html[data-theme] .table td { border-color: var(--ce-border); }
+html[data-theme] .table { color: var(--ce-text); }
+html[data-theme] .table-hover tbody tr:hover { background: var(--ce-surface-alt); color: var(--ce-text); }
+html[data-theme] .badge-light { background: var(--ce-surface-alt); color: var(--ce-text); }
+html[data-theme] .text-success { color: var(--ce-success) !important; }
+html[data-theme] .text-danger { color: var(--ce-danger) !important; }
+html[data-theme] .list-group-item-success { background: var(--ce-success-soft); color: var(--ce-success); }
+html[data-theme] .list-group-item-danger { background: var(--ce-danger-soft); color: var(--ce-danger); }
+html[data-theme] .sidebar-toggle { background: var(--ce-surface); border-color: var(--ce-border); }
+html[data-theme] .sidebar-toggle .navbar-toggler-icon,
+html[data-theme] .sidebar-toggle .navbar-toggler-icon::before,
+html[data-theme] .sidebar-toggle .navbar-toggler-icon::after { border-top-color: var(--ce-text); }
+html[data-theme] .report-card-header p { color: #e8fff5; }
+html[data-theme="dark"] a:not(.btn):not(.sidebar-link):not(.auth-brand):not(.report-brand):not(.navbar-brand):not(.topbar-brand):not(.brand) { color: #88bdfc; }
+html[data-theme="dark"] .text-primary { color: #88bdfc !important; }
+html[data-theme="dark"] .sidebar-brand a { color: #fff !important; }
+html[data-theme="dark"] .btn-outline-secondary { color: var(--ce-muted); border-color: #718399; }
+html[data-theme="dark"] .btn-outline-primary { color: #88bdfc; border-color: #88bdfc; }
+html[data-theme="dark"] .btn-outline-success { color: var(--ce-accent); border-color: var(--ce-accent); }
+html[data-theme="dark"] .dropdown-item { color: var(--ce-text); }
+html[data-theme="dark"] .dropdown-item:hover { background: var(--ce-surface-alt); }
+html[data-theme="dark"] .bg-white,
+html[data-theme="dark"] .bg-light { background-color: var(--ce-surface) !important; }
+html[data-theme="dark"] .alert-success { background: var(--ce-success-soft); color: var(--ce-success); border-color: #356a4e; }
+html[data-theme="dark"] .alert-danger { background: var(--ce-danger-soft); color: var(--ce-danger); border-color: #79414b; }
+html[data-theme="dark"] .alert-warning { background: #42361e; color: #ffe3a1; border-color: #796234; }
+html[data-theme="dark"] .alert-info { background: #193c4c; color: #a0dff5; border-color: #386b7f; }
+.theme-toggle { background: var(--ce-surface); border: 1px solid var(--ce-border); color: var(--ce-text); border-radius: .5rem; padding: .45rem .7rem; font: inherit; font-size: .85rem; font-weight: 700; cursor: pointer; white-space: nowrap; }
+.theme-toggle:hover { background: var(--ce-surface-alt); }
+.theme-toggle:focus-visible { outline: 3px solid var(--ce-accent); outline-offset: 3px; }
+.theme-toggle-floating { position: fixed; top: 1rem; right: 1rem; z-index: 1050; }
+@media (max-width: 576px) {
+    .app-topbar { gap: .5rem; flex-wrap: wrap; }
+    .topbar-actions { gap: .4rem; }
+    .topbar-actions .btn { padding: .35rem .5rem; }
+    .app-topbar .theme-toggle { padding: .4rem .5rem; }
+    .preset-row { align-items: flex-start; flex-direction: column; gap: .4rem; }
+}
