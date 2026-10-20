@@ -8,7 +8,11 @@ CrazyExam is a Laravel exam practice platform for timed subject-based exams. Lea
 - Mixed-subject exam attempts with strict fallback rules when a selected subject does not have enough questions.
 - Flexible question counts and durations, including 100 questions in 1 minute. A suggested 30 seconds per question never overrides the learner's chosen time.
 - Single-subject Rush exams with a default 60-second timer and 15–180-second choices in 15-second steps, instant marking, locked answers, live scores and streaks, and sound effects with a remembered mute setting.
-- Compact subject selection with Academic and Challenge categories, search, and selected-subject chips. Rush keeps Finish Rush visible on mobile, and reviews show only answered questions.
+- Compact subject selection with Academic and Challenge categories, Browse all subjects, and selected-subject chips. Rush keeps Finish Rush visible on mobile, and reviews show only answered questions.
+- A separate Games section: Word Scramble (72 words with clues) and Picture Puzzles (24 original SVG rebuses), with typed answers, Skip, 15–180-second timers, instant server marking and saved results.
+- A short, conversational Lagos Street Knowledge bank with 72 distinct questions, including markets, route order and old Lagos.
+- Lagos Rush leads the landing page and dashboard, with a permanent sidebar shortcut. `/lagos-rush` preserves the destination through login and opens the Lagos bank in Rush mode at 60 seconds; learners can adjust the clock before starting.
+- A Drop feedback card on completed exams and games that opens a prefilled community feedback form.
 - Light and dark themes that follow the system setting initially and remember the learner's choice across pages.
 - Timed attempts, saved answers, results, and score history.
 - Admin and moderator dashboards for managing users, subjects, questions, and exam presets.
@@ -92,6 +96,14 @@ Rush keeps the generated correct-answer tone. Wrong-answer clips (`.mp3`, `.wav`
 The page-entry clip is `public/sounds/rush/intro/lets-have-it-lets-have-it.mp3`. Results use `public/sounds/rush/results/studio-audience-awwww-sound-fx.mp3` when more than half of the answered questions are correct. At 50% or below, including no answers, they use `public/sounds/rush/results/you-dey-go-na.mp3`. The denominator is answered questions, not the entire question bank. These clips respect the mute setting. Page-entry audio retries on the first tap if autoplay is blocked, and results have a Play reaction button. Redeploy after adding clips to a serverless deployment.
 
 New exams use custom settings instead of duration presets. The legacy presets and their admin screen remain available for historical attempts. Run `php artisan migrate` when updating an existing installation to add the exam mode column.
+
+## Games and Lagos Questions
+
+Run `php artisan migrate` to add game question snapshots and refresh the Lagos bank. The refresh retires the old generated Lagos templates, preserves custom questions and keeps saved exam reviews intact. `QuestionSeeder` also uses the new bank, so reseeding does not restore the long prompts. The Lagos refresh can be repeated independently with `php artisan db:seed --class=LagosStreetKnowledgeSeeder`.
+
+Game definitions and accepted phrase variants live in `app/Services/PuzzleBank.php`. Rebus images are local SVG assets; rebuild them with `node scripts/build-rebus.mjs` after changing the drawing definitions. Correct answers and accepted variants are kept on the server. Typed marking ignores case, punctuation and spacing; rebuses also allow optional articles (a, an, the). Skipping counts as an attempted wrong answer. Games use the existing Rush deadline, sounds, result history and attempted-only reviews.
+
+Lagos content lives in `app/Services/LagosQuestionBank.php`; research links are recorded in `database/data/lagos-sources.json`. The questions avoid changing prices and timetables.
 
 ## Deployment
 

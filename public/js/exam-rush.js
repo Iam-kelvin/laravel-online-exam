@@ -56,11 +56,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const shell = document.querySelector('.rush-shell');
     function fitShell() {
-        shell.style.setProperty('--rush-offset', Math.ceil(shell.getBoundingClientRect().top + 12) + 'px');
+        const viewport = window.visualViewport;
+        shell.style.setProperty('--rush-viewport', (viewport?.height || window.innerHeight) + 'px');
+        shell.style.setProperty('--rush-offset', Math.max(12, Math.ceil(shell.getBoundingClientRect().top + 12 - (viewport?.offsetTop || 0))) + 'px');
     }
     fitShell();
     window.addEventListener('resize', fitShell);
     window.visualViewport?.addEventListener('resize', fitShell);
+    window.visualViewport?.addEventListener('scroll', fitShell);
     if (window.ResizeObserver) new ResizeObserver(fitShell).observe(document.querySelector('.app-topbar'));
     window.addEventListener('pagehide', () => audio.stop());
 
@@ -69,7 +72,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!cards[index]) {
             finishExam();
         } else if (focus) {
-            cards[index].querySelector('.rush-question-title').focus({ preventScroll: true });
+            (cards[index].querySelector('.game-answer-input') || cards[index].querySelector('.rush-question-title')).focus({ preventScroll: true });
         }
     }
 
@@ -79,7 +82,7 @@ document.addEventListener('DOMContentLoaded', () => {
         clearTimeout(advanceTimeout);
         finishButton.disabled = true;
         finishButton.textContent = 'Saving your result…';
-        cards.forEach(card => card.querySelectorAll('button').forEach(button => { button.disabled = true; }));
+        cards.forEach(card => card.querySelectorAll('button, input').forEach(control => { control.disabled = true; }));
         // Let an answer already being saved settle before finalizing its score.
         if (pending) await pending;
         audio.stop();
@@ -103,9 +106,10 @@ document.addEventListener('DOMContentLoaded', () => {
         showQuestion(true);
     }
 
-    async function markAnswer(card, button) {
+    async function markAnswer(card, payload) {
         const buttons = Array.from(card.querySelectorAll('.rush-option'));
-        buttons.forEach(option => { option.disabled = true; });
+        const controls = Array.from(card.querySelectorAll('.rush-option, .game-answer-form button, .game-answer-input'));
+        controls.forEach(control => { control.disabled = true; });
         const feedback = card.querySelector('.rush-feedback');
         feedback.textContent = 'Checking…';
         notice.hidden = true;
@@ -120,7 +124,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     'Accept': 'application/json',
                     'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
                 },
-                body: JSON.stringify({ answer: button.dataset.answer }),
+                body: JSON.stringify(payload),
                 signal: controller.signal,
             });
             const result = await response.json();
@@ -137,8 +141,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (option.dataset.answer === result.selected_answer && !result.is_correct) option.classList.add('is-wrong');
             });
             const correctButton = buttons.find(option => option.dataset.answer === result.correct_answer);
-            const correctLabel = Array.from(correctButton.children).map(part => part.textContent.trim()).join('. ');
-            feedback.textContent = result.is_correct ? '✓ Correct! Keep going.' : `✕ Wrong. Correct answer: ${correctLabel}`;
+            const correctLabel = correctButton
+                ? Array.from(correctButton.children).map(part => part.textContent.trim()).join('. ')
+                : result.correct_answer;
+            const typedInput = card.querySelector('.game-answer-input');
+            if (typedInput) typedInput.classList.add(result.is_correct ? 'is-correct' : 'is-wrong');
+            feedback.classList.remove('text-success', 'text-danger');
+            feedback.textContent = result.is_correct ? '✓ Correct! Keep going.'
+                : `${payload.skip ? 'Skipped.' : '✕ Wrong.'} Correct answer: ${correctLabel}`;
             feedback.classList.add(result.is_correct ? 'text-success' : 'text-danger');
             document.getElementById('rushAnswered').textContent = result.answered;
             document.getElementById('rushCorrect').textContent = result.score;
@@ -156,7 +166,7 @@ document.addEventListener('DOMContentLoaded', () => {
             feedback.textContent = '';
             notice.textContent = 'Could not confirm your answer. Check your connection and tap again to retry; your first saved answer still counts.';
             notice.hidden = false;
-            buttons.forEach(option => { option.disabled = false; });
+            controls.forEach(control => { control.disabled = false; });
         } finally {
             clearTimeout(requestTimeout);
         }
@@ -166,9 +176,25 @@ document.addEventListener('DOMContentLoaded', () => {
         button.addEventListener('click', () => {
             if (pending || ending) return;
             audio.unlock();
-            pending = markAnswer(card, button).finally(() => { pending = null; });
+            pending = markAnswer(card, { answer: button.dataset.answer }).finally(() => { pending = null; });
         });
     }));
+
+    cards.forEach(card => {
+        const answerForm = card.querySelector('.game-answer-form');
+        if (!answerForm) return;
+        const save = payload => {
+            if (pending || ending) return;
+            audio.unlock();
+            pending = markAnswer(card, payload).finally(() => { pending = null; });
+        };
+        answerForm.addEventListener('submit', event => {
+            event.preventDefault();
+            const answer = answerForm.querySelector('input').value.trim();
+            if (answer) save({ answer });
+        });
+        answerForm.querySelector('[data-skip]').addEventListener('click', () => save({ skip: true }));
+    });
 
     function tick() {
         const remaining = Math.max(0, Math.ceil(config.remainingSeconds - (performance.now() - started) / 1000));

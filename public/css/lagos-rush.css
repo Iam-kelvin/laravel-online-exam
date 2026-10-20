@@ -1,0 +1,75 @@
+.lagos-feature { color: #f8fbf3; background: #123b30; border: 1px solid #31584a; border-radius: 18px; overflow: hidden; margin-bottom: 1.5rem; }
+.lagos-feature-grid { display: grid; grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr); align-items: center; gap: 1rem; padding: clamp(1.25rem, 3vw, 2.5rem); }
+.lagos-feature-copy { min-width: 0; position: relative; z-index: 1; }
+.lagos-feature .lagos-feature-kicker { display: flex; flex-wrap: wrap; align-items: center; gap: .4rem; color: #f8cf57; font-size: .78rem; font-weight: 700; margin: 0 0 1.2rem; }
+.lagos-feature-kicker .room-icon { width: 16px; height: 16px; }
+.lagos-feature-kicker > span { color: #b4ccbd; font-size: .68rem; font-weight: 400; border-left: 1px solid #608475; padding-left: .65rem; margin-left: .25rem; }
+.lagos-feature h1 { color: #fffdf1; font-size: clamp(1.8rem, 3.6vw, 3rem); font-weight: 750; letter-spacing: -.045em; line-height: 1.08; margin: 0 0 1rem; }
+.lagos-feature h1 > span { display: block; color: #f8cf57; margin-top: .15rem; }
+.lagos-feature .lagos-feature-description { color: #d1e1d6; font-size: .95rem; line-height: 1.65; max-width: 450px; margin: 0 0 1.4rem; }
+.lagos-feature-actions { display: flex; flex-wrap: wrap; gap: .65rem; }
+.lagos-feature .lagos-play-button { display: inline-flex; align-items: center; justify-content: center; gap: .8rem; background: #f8cf57; color: #18392c; border: 1px solid #f8cf57; border-radius: 8px; font-size: .88rem; font-weight: 700; padding: .75rem 1.05rem; min-height: 46px; }
+.lagos-feature .lagos-play-button:hover { color: #142d24; background: #ffdf7f; border-color: #ffdf7f; }
+.lagos-feature .lagos-secondary-button { display: inline-flex; align-items: center; justify-content: center; color: #e0ece2; background: transparent; border: 1px solid #719387; border-radius: 8px; font-size: .82rem; padding: .75rem .9rem; min-height: 46px; }
+.lagos-feature .lagos-secondary-button:hover { background: #254d40; color: #fff; }
+.lagos-feature .lagos-feature-note { color: #adc6b7; font-size: .69rem; line-height: 1.5; margin: .7rem 0 1.2rem; }
+.lagos-feature-perks { display: flex; flex-wrap: wrap; gap: .65rem 1.1rem; padding: 0; margin: 0; list-style: none; }
+.lagos-feature-perks li { display: flex; align-items: center; gap: .35rem; font-size: .69rem; color: #d2e1d6; }
+.lagos-feature-perks .room-icon { width: 14px; height: 14px; color: #e8c761; }
+.lagos-feature-scene { min-width: 0; position: relative; padding: .5rem 0; }
+.lagos-scene-top { display: flex; align-items: flex-start; justify-content: space-between; padding: 0 1.2rem; }
+.lagos-scene-ticket { display: inline-block; padding: .45rem .65rem; border: 1px solid #658375; color: #d0e0d2; font-size: .6rem; font-weight: 700; letter-spacing: .15em; border-radius: 4px; transform: rotate(-6deg); margin-top: .75rem; }
+.lagos-scene-clock { color: #f8cf57; font-size: clamp(2.7rem, 5vw, 4.5rem); font-weight: 700; line-height: .85; letter-spacing: -.06em; text-align: center; transform: rotate(5deg); }
+.lagos-scene-clock > span { display: block; font-size: .55rem; font-weight: 500; letter-spacing: .15em; margin-top: .6rem; }
+.lagos-danfo { width: 100%; height: auto; display: block; margin-top: -2rem; }
+.lagos-route-stops { display: flex; align-items: center; justify-content: space-between; gap: .35rem; position: relative; padding-top: 1rem; border-top: 1px solid #608473; margin: .25rem 1.2rem 0; }
+.lagos-route-stops > span { position: relative; color: #b4cebc; font-size: .5rem; letter-spacing: .08em; }
+.lagos-route-stops > span::before { content: ''; position: absolute; top: -1.2rem; left: 50%; width: 6px; height: 6px; border-radius: 50%; background: #94b49f; }
+.lagos-route-stops > span:last-child { color: #f8cf57; }
+.lagos-route-stops > span:last-child::before { background: #f8cf57; }
+.lagos-feature .lagos-scene-challenge { margin: 1.1rem 0 0; text-align: center; color: #d5e4d8; font-size: .7rem; }
+.lagos-feature--public { border: 0; border-radius: 0; margin: 0; padding: 6rem 5vw 4.5rem; }
+.lagos-feature--public .lagos-feature-grid { max-width: 1260px; margin: 0 auto; padding: 2rem 0; gap: 2.5rem; }
+.lagos-feature--public h1 { font-size: clamp(2.6rem, 5.3vw, 4.7rem); }
+.lagos-feature--public .lagos-feature-description { font-size: 1.1rem; max-width: 490px; }
+.lagos-feature--public .lagos-play-button { font-size: 1rem; padding: .9rem 1.3rem; }
+.lagos-feature--public .lagos-feature-perks li { font-size: .78rem; }
+.lagos-feature--public .lagos-feature-note { font-size: .76rem; }
+.sidebar-nav .sidebar-lagos-rush { display: flex; align-items: center; gap: .5rem; background: #f8cf57; color: #18392c !important; margin-bottom: .7rem; }
+.sidebar-lagos-rush .room-icon { width: 17px; height: 17px; }
+.sidebar-lagos-rush > span { margin-left: auto; font-size: .65rem; border-left: 1px solid #b59a48; padding-left: .65rem; }
+.sidebar-nav .sidebar-lagos-rush:hover { background: #ffdf7f; }
+.lagos-resume-row { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: .6rem; margin: -.5rem 0 1.5rem; color: var(--ce-muted); font-size: .85rem; }
+.lagos-resume-row .btn { font-size: .78rem; }
+.lagos-feature a:focus-visible, .sidebar-lagos-rush:focus-visible { outline: 3px solid #fff5bf; outline-offset: 3px; }
+@media (min-width: 901px) and (max-width: 1200px) {
+    .lagos-feature:not(.lagos-feature--public) .lagos-feature-grid { grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr); padding: 1.5rem; }
+    .lagos-feature:not(.lagos-feature--public) h1 { font-size: 2rem; }
+    .lagos-feature-kicker > span { width: 100%; border: 0; margin: 0; padding: 0; }
+}
+@media (max-width: 680px) {
+    .lagos-feature-grid { grid-template-columns: 1fr; gap: 1.25rem; padding: 1.3rem; }
+    .lagos-feature h1 { font-size: clamp(1.9rem, 7.2vw, 2.5rem); }
+    .lagos-feature .lagos-feature-kicker { margin-bottom: .8rem; }
+    .lagos-feature-kicker > span { width: 100%; border: 0; margin: 0; padding: 0; font-size: .65rem; }
+    .lagos-feature .lagos-feature-description { font-size: .87rem; margin-bottom: 1rem; line-height: 1.55; }
+    .lagos-feature-actions { gap: .5rem; }
+    .lagos-feature .lagos-play-button { width: 100%; justify-content: space-between; }
+    .lagos-feature .lagos-secondary-button { width: 100%; min-height: 40px; padding: .5rem; }
+    .lagos-feature .lagos-feature-note { margin-bottom: .9rem; }
+    .lagos-feature-perks { gap: .5rem .8rem; }
+    .lagos-feature-perks li { font-size: .65rem; }
+    .lagos-feature-scene { max-width: 370px; width: 100%; margin: 0 auto; }
+    .lagos-scene-top { padding: 0 .6rem; }
+    .lagos-scene-clock { font-size: 2.8rem; }
+    .lagos-danfo { margin-top: -2.2rem; }
+    .lagos-route-stops { margin-top: 0; }
+    .lagos-feature .lagos-scene-challenge { margin-top: .7rem; font-size: .65rem; }
+    .lagos-feature--public { padding: 8.5rem 5vw 2.5rem; }
+    .lagos-feature--public .lagos-feature-grid { padding: 0; gap: 1.7rem; }
+    .lagos-feature--public h1 { font-size: clamp(2.3rem, 9vw, 3rem); }
+    .lagos-feature--public .lagos-feature-description { font-size: .95rem; }
+    .lagos-feature--public .lagos-play-button { font-size: .95rem; padding: .8rem 1rem; }
+    .lagos-feature--public .lagos-feature-perks li { font-size: .67rem; }
+    .lagos-feature--public .lagos-feature-note { font-size: .68rem; }
+}

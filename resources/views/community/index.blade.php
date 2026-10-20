@@ -13,25 +13,26 @@
             <div class="content-panel">
                 <div class="panel-header">
                     <div>
-                        <h2 class="h5 mb-1">Start A Thread</h2>
-                        <p class="text-muted mb-0">Ask for your state, topic, or challenge idea.</p>
+                        <h2 class="h5 mb-1">{{ $feedback ? 'Drop feedback' : 'Start A Thread' }}</h2>
+                        <p class="text-muted mb-0">{{ $feedback ? 'Tell us what worked and what could be better.' : 'Ask for your state, topic, or challenge idea.' }}</p>
                     </div>
                 </div>
 
-                <form action="{{ route('community.store') }}" method="POST">
+                <form action="{{ route('community.store') }}" method="POST" id="community-post-form">
                     @csrf
 
                     <div class="form-group">
                         <label for="title">Title</label>
                         <input type="text" class="form-control" id="title" name="title"
-                            value="{{ old('title') }}" maxlength="120" required>
+                            value="{{ old('title', $feedback ? 'Feedback: ' . $feedback : '') }}" maxlength="120" required>
                     </div>
 
                     <div class="form-group">
                         <label for="category">Type</label>
                         <select class="form-control" id="category" name="category" required>
-                            <option value="request" {{ old('category', 'request') === 'request' ? 'selected' : '' }}>Request</option>
-                            <option value="discussion" {{ old('category') === 'discussion' ? 'selected' : '' }}>Discussion</option>
+                            @foreach(['request' => 'Request', 'discussion' => 'Discussion', 'feedback' => 'Feedback'] as $category => $label)
+                                <option value="{{ $category }}" {{ old('category', $feedback ? 'feedback' : 'request') === $category ? 'selected' : '' }}>{{ $label }}</option>
+                            @endforeach
                         </select>
                     </div>
 

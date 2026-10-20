@@ -11,6 +11,7 @@
     <link href="{{ asset('css/simple-sidebar.css') }}" rel="stylesheet">
     @include('partials.theme-head')
     <link href="{{ asset('css/exam.css') }}" rel="stylesheet">
+    <link href="{{ asset('css/lagos-rush.css') }}" rel="stylesheet">
     @stack('styles')
 </head>
 <body>
@@ -22,7 +23,9 @@
 
             <nav class="sidebar-nav">
                 <a class="sidebar-link {{ request()->routeIs('home') ? 'active' : '' }}" href="{{ route('home') }}">Dashboard</a>
-                <a class="sidebar-link {{ request()->routeIs('exam.start') || request()->routeIs('exam.take') ? 'active' : '' }}" href="{{ route('exam.start') }}">Take Exam</a>
+                <a class="sidebar-link sidebar-lagos-rush" href="{{ route('exam.lagos-rush') }}">@include('partials.exam-icon', ['icon' => 'bolt']) Lagos Rush <span>60s</span></a>
+                <a class="sidebar-link {{ request()->routeIs('exam.start') || (request()->routeIs('exam.take') && ! $attempt->isGame()) ? 'active' : '' }}" href="{{ route('exam.start') }}">Take Exam</a>
+                <a class="sidebar-link {{ request()->routeIs('games.*') || (request()->routeIs('exam.take', 'exam.review') && isset($attempt) && $attempt->isGame()) ? 'active' : '' }}" href="{{ route('games.index') }}">Games</a>
                 <a class="sidebar-link {{ request()->routeIs('exam.results') || request()->routeIs('exam.review') ? 'active' : '' }}" href="{{ route('exam.results') }}">Results</a>
                 <a class="sidebar-link {{ request()->routeIs('community.*') ? 'active' : '' }}" href="{{ route('community.index') }}">Community</a>
                 <a class="sidebar-link {{ request()->routeIs('account.*') ? 'active' : '' }}" href="{{ route('account.edit') }}">Account Settings</a>

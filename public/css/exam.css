@@ -37,7 +37,7 @@
 .rush-duration-stepper button:disabled { opacity: .4; cursor: default; }
 .setup-submit { padding: 1rem 0 .25rem; }
 .setup-submit .btn { min-height: 44px; min-width: 180px; }
-.rush-shell { max-width: 780px; margin: 0 auto; height: calc(100dvh - var(--rush-offset, 112px)); display: flex; flex-direction: column; gap: .65rem; min-height: 280px; }
+.rush-shell { max-width: 780px; margin: 0 auto; height: calc(var(--rush-viewport, 100dvh) - var(--rush-offset, 112px)); display: flex; flex-direction: column; gap: .65rem; min-height: 280px; }
 .rush-toolbar { display: flex; align-items: center; justify-content: space-between; gap: .5rem; flex: 0 0 auto; }
 .rush-heading { min-width: 0; }
 .rush-heading h1 { font-size: 1.2rem; margin: 0 0 .15rem; }

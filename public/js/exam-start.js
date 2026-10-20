@@ -74,6 +74,10 @@ document.addEventListener('DOMContentLoaded', () => {
     function updateSummary() {
         const selected = selectedSubjects();
         const rush = isRush();
+        const lagos = rush && selected.length === 1 && (selected[0].slug === 'lagos-street-knowledge' || selected[0].name.toLocaleLowerCase() === 'lagos street knowledge');
+        document.getElementById('setupHeading').textContent = lagos ? 'Lagos Rush' : 'What are we practising?';
+        document.getElementById('setupDescription').textContent = lagos ? 'Your city. Your clock. Set your time and let’s go.' : 'Pick your subjects. Make the challenge yours.';
+        document.getElementById('startExamLabel').textContent = rush ? (lagos ? 'Start Lagos Rush' : 'Start Rush') : 'Start practice';
         const seconds = rush ? Number(rushDuration.value) : Math.round(Number(duration.value) * (unit.value === 'minutes' ? 60 : 1));
         const validTime = Number.isFinite(seconds) && seconds >= 1;
         const timeValue = validTime ? !rush && seconds % 60 === 0 ? seconds / 60 : seconds : '—';

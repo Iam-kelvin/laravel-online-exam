@@ -194,7 +194,7 @@
                     <div>
                         <strong>Challenge friends to beat this.</strong>
                         <span class="short-link">{{ $shareUrl }}</span>
-                        <a href="{{ route('reports.take', $attempt->share_token) }}" class="btn btn-sm btn-success mt-3">Take This Combo</a>
+                        <a href="{{ route('reports.take', $attempt->share_token) }}" class="btn btn-sm btn-success mt-3">{{ $attempt->isGame() ? 'Play This Game' : 'Take This Combo' }}</a>
                     </div>
                 </div>
             </div>

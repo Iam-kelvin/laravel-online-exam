@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 620 340" fill="none">
+  <path d="M0 272h620" stroke="#8ab6a4" stroke-opacity=".35" stroke-width="2"/>
+  <g stroke="#8ab6a4" stroke-opacity=".24" stroke-width="2">
+    <path d="M6 263V166h32v97m12 0V133h30v130m12 0V182h26v81M508 263V150h36v113m12 0V118h29v145m11 0V185h24"/>
+    <path d="M0 210c100-55 190-55 290 0m-290 4h290M55 214v47m60-47v47m60-47v47m60-47v47"/>
+  </g>
+  <ellipse cx="322" cy="295" rx="225" ry="19" fill="#071f1a" fill-opacity=".45"/>
+  <g transform="rotate(-3 310 220)">
+    <path d="M112 130c0-11 9-20 20-20h313c16 0 27 9 34 24l36 86v46c0 10-8 18-18 18H116c-10 0-18-8-18-18V157c0-15 4-27 14-27Z" fill="#f5c847"/>
+    <path d="M127 133h57v66h-57zm69 0h60v66h-60zm72 0h60v66h-60zm72 0h62v66h-62z" fill="#143f37"/>
+    <path d="M414 133h30c8 0 13 5 16 12l23 54h-69v-66Z" fill="#153f37"/>
+    <path d="m132 138 31 0-31 44zm69 0h31l-31 44zm72 0h31l-31 44zm72 0h31l-31 44z" fill="#fff" fill-opacity=".12"/>
+    <path d="M99 211h412v16H99z" fill="#263b2c"/>
+    <path d="M110 231h396v5H110z" fill="#263b2c" fill-opacity=".7"/>
+    <path d="M409 126v143m-296-67v66" stroke="#b78e27" stroke-width="3"/>
+    <path d="M414 250h80" stroke="#b78e27" stroke-width="2"/>
+    <rect x="382" y="207" width="16" height="5" rx="2" fill="#162c24"/>
+    <rect x="487" y="240" width="20" height="12" rx="3" fill="#fff7d5"/>
+    <rect x="97" y="236" width="8" height="16" rx="2" fill="#c97048"/>
+    <rect x="95" y="266" width="423" height="9" rx="4" fill="#233b30"/>
+    <circle cx="175" cy="277" r="31" fill="#102c23"/>
+    <circle cx="175" cy="277" r="17" fill="#a6b2a5"/>
+    <circle cx="175" cy="277" r="8" fill="#314d40"/>
+    <circle cx="449" cy="277" r="31" fill="#102c23"/>
+    <circle cx="449" cy="277" r="17" fill="#a6b2a5"/>
+    <circle cx="449" cy="277" r="8" fill="#314d40"/>
+    <rect x="222" y="92" width="166" height="27" rx="5" fill="#fff8dd"/>
+    <text x="305" y="111" text-anchor="middle" fill="#183d2f" font-family="Arial,sans-serif" font-weight="700" font-size="14" letter-spacing="3">LAGOS RUSH</text>
+    <path d="M500 174h17v31h-10" stroke="#15382d" stroke-width="6" stroke-linejoin="round"/>
+  </g>
+  <path d="M33 238h33m-12 11h-30m500 38h36m-23 12h47" stroke="#f5c847" stroke-opacity=".7" stroke-width="3" stroke-linecap="round"/>
+</svg>

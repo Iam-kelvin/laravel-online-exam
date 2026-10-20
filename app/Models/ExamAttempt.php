@@ -16,6 +16,7 @@ class ExamAttempt extends Model
         'user_id',
         'exam_preset_id',
         'mode',
+        'game_type',
         'requested_question_count',
         'question_count',
         'duration_seconds',
@@ -69,6 +70,18 @@ class ExamAttempt extends Model
     public function isRush(): bool
     {
         return $this->mode === 'rush';
+    }
+
+    public function isGame(): bool
+    {
+        return isset(\App\Services\PuzzleBank::GAMES[$this->game_type ?? '']);
+    }
+
+    public function isLagosRush(): bool
+    {
+        return $this->isRush() && ! $this->isGame() && $this->subjects->contains(
+            fn ($subject) => $subject->slug === 'lagos-street-knowledge' || Str::lower($subject->name) === 'lagos street knowledge'
+        );
     }
 
     public function durationLabel(): string
@@ -126,6 +139,9 @@ class ExamAttempt extends Model
 
     public function examName(): string
     {
+        if ($this->isGame()) {
+            return \App\Services\PuzzleBank::GAMES[$this->game_type]['name'];
+        }
         $names = $this->subjects->pluck('name')->filter();
 
         if ($names->isEmpty()) {

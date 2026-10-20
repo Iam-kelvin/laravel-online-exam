@@ -7,7 +7,7 @@ use Illuminate\Http\Request;
 
 class CommunityController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
         $posts = CommunityPost::query()
             ->with(['user', 'comments.user'])
@@ -15,14 +15,17 @@ class CommunityController extends Controller
             ->latest()
             ->paginate(10);
 
-        return view('community.index', compact('posts'));
+        $feedback = $request->query('feedback');
+        $feedback = is_string($feedback) ? \Illuminate\Support\Str::limit($feedback, 95, '') : null;
+
+        return view('community.index', compact('posts', 'feedback'));
     }
 
     public function store(Request $request)
     {
         $validated = $request->validate([
             'title' => ['required', 'string', 'max:120'],
-            'category' => ['required', 'in:request,discussion'],
+            'category' => ['required', 'in:request,discussion,feedback'],
             'body' => ['required', 'string', 'max:2000'],
         ], [
             'title.required' => 'Add a short title for your post.',

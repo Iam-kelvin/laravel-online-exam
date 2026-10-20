@@ -14,6 +14,27 @@ use App\Services\RushSounds;
 
 class ExamController extends Controller
 {
+    public function lagosRush()
+    {
+        $subject = Subject::query()
+            ->where('active', true)
+            ->whereHas('questions')
+            ->where(function ($query) {
+                $query->where('slug', 'lagos-street-knowledge')
+                    ->orWhereRaw('LOWER(name) = ?', ['lagos street knowledge']);
+            })
+            ->first();
+
+        if (! $subject) {
+            return redirect()->route('exam.start', ['mode' => 'rush'])
+                ->with('warning', 'Lagos Rush is unavailable right now. Try another Rush subject while we get it ready.');
+        }
+
+        return redirect()->route('exam.start', [
+            'mode' => 'rush', 'subject_ids' => [$subject->id], 'duration_seconds' => 60,
+        ]);
+    }
+
     public function start(Request $request)
     {
         $subjects = Subject::query()
@@ -188,7 +209,10 @@ class ExamController extends Controller
         abort_unless($attempt->user_id === auth()->id(), 403);
         abort_unless($attempt->isRush() && $question->exam_attempt_id === $attempt->id, 404);
 
-        $validated = $request->validate([
+        $validated = $request->validate($question->isTyped() ? [
+            'skip' => ['sometimes', 'boolean'],
+            'answer' => ['required_unless:skip,true', 'nullable', 'string', 'max:120'],
+        ] : [
             'answer' => ['required', Rule::in(['option_a', 'option_b', 'option_c', 'option_d'])],
         ]);
 
@@ -213,9 +237,11 @@ class ExamController extends Controller
                 $nextId = $attempt->questions()->whereNull('selected_answer')->value('id');
                 abort_unless($nextId === $question->id, 409, 'Answer the current question first.');
 
+                $skipped = $question->isTyped() && ($validated['skip'] ?? false);
+                $answer = $skipped ? '[Skipped]' : $validated['answer'];
                 $question->update([
-                    'selected_answer' => $validated['answer'],
-                    'is_correct' => $validated['answer'] === $question->correct_answer,
+                    'selected_answer' => $answer,
+                    'is_correct' => ! $skipped && $question->matchesAnswer($answer),
                 ]);
             }
 

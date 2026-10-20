@@ -30,6 +30,7 @@ class QuestionSeeder extends Seeder
 
         $this->removeDuplicateQuestions();
         $this->deactivateEmptyGeneralSubject();
+        $this->call(LagosStreetKnowledgeSeeder::class);
     }
 
     private function questionBanks(): array
@@ -242,33 +243,6 @@ class QuestionSeeder extends Seeder
                 ['Fuse', 'a safety device that melts when current is too high'],
                 ['Lever', 'a simple machine that turns about a pivot'],
                 ['Echo', 'a reflected sound heard after a delay'],
-            ]),
-            'Lagos Street Knowledge' => $this->conceptQuestions('Lagos Street Knowledge', [
-                ['Eyo festival', 'a traditional Lagos masquerade festival'],
-                ['Third Mainland Bridge', 'a major bridge linking Lagos Island and the mainland'],
-                ['Balogun Market', 'a major commercial market on Lagos Island'],
-                ['National Theatre', 'a landmark cultural building in Iganmu'],
-                ['Tafawa Balewa Square', 'a historic ceremonial ground in Lagos Island'],
-                ['Makoko', 'a waterfront community in Lagos'],
-                ['Lekki Conservation Centre', 'a nature reserve known for its canopy walkway'],
-                ['BRT', 'a bus rapid transit system used for mass transport in Lagos'],
-                ['Marina', 'a business district on Lagos Island'],
-                ['Badagry', 'a historic coastal town in Lagos State'],
-                ['Tinubu Square', 'a historic open space on Lagos Island'],
-                ['Freedom Park', 'a cultural park built on the site of an old prison'],
-                ['CMS', 'a busy transport and commercial area on Lagos Island'],
-                ['Idumota', 'a Lagos Island district known for wholesale trading'],
-                ['Oshodi', 'a major mainland transport hub'],
-                ['Mile 12 Market', 'a large food market known for farm produce'],
-                ['Computer Village', 'an Ikeja market known for phones and electronics'],
-                ['Alaba International Market', 'a major electronics and appliance market'],
-                ['Bar Beach', 'a former popular beachfront area on Victoria Island'],
-                ['Elegushi Beach', 'a private beach in Lekki'],
-                ['Ikoyi', 'an upscale area linked to offices and residences'],
-                ['Yaba', 'a mainland area known for schools and technology activity'],
-                ['Surulere', 'a mainland district known for sports and entertainment history'],
-                ['Apapa Port', 'a major seaport area in Lagos'],
-                ['Carter Bridge', 'one of the bridges linking Lagos Island to the mainland'],
             ]),
             'Nigeria and States' => $this->conceptQuestions('Nigeria and States', [
                 ['Abuja', 'the capital city of Nigeria'],

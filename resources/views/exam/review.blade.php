@@ -18,16 +18,16 @@
 
     <div class="d-flex flex-wrap align-items-center justify-content-between mb-4">
         <div>
-            <h1 class="h3 mb-1">{{ $attempt->isRush() ? 'Rush Results' : 'Exam Review' }}</h1>
+            <h1 class="h3 mb-1">{{ $attempt->isGame() ? $attempt->examName() . ' Results' : ($attempt->isLagosRush() ? 'Lagos Rush Results' : ($attempt->isRush() ? 'Rush Results' : 'Exam Review')) }}</h1>
             <p class="text-muted mb-0">
-                {{ $attempt->subjects->pluck('name')->join(', ') }} &middot;
+                {{ $attempt->examName() }} &middot;
                 submitted {{ $attempt->submitted_at->format('M j, Y g:i A') }}
             </p>
         </div>
         <div class="mt-3 mt-md-0">
             <a href="{{ route('exam.results') }}" class="btn btn-outline-secondary">Back to Results</a>
             <a href="{{ $attempt->shortLink() }}" class="btn btn-success" target="_blank" rel="noopener">Share Card</a>
-            <a href="{{ route('exam.start') }}" class="btn btn-primary">Take Another Exam</a>
+            <a href="{{ $attempt->isGame() ? route('games.start', ['game' => $attempt->game_type, 'duration_seconds' => $attempt->duration_seconds]) : route('exam.start') }}" class="btn btn-primary">{{ $attempt->isGame() ? 'Play Again' : 'Take Another Exam' }}</a>
         </div>
     </div>
 
@@ -72,6 +72,15 @@
 
                 <p class="mb-3">{{ $question->question_text }}</p>
 
+                @if($question->isTyped())
+                    @include('partials.puzzle-prompt', ['question' => $question])
+                    <div class="list-group mb-3">
+                        <div class="list-group-item {{ $question->is_correct ? 'list-group-item-success' : 'list-group-item-danger' }}">
+                            <strong>Your answer:</strong> {{ $question->selected_answer === '[Skipped]' ? 'Skipped' : $question->selected_answer }}
+                        </div>
+                        <div class="list-group-item list-group-item-success"><strong>Correct answer:</strong> {{ $question->correct_answer }}</div>
+                    </div>
+                @else
                 <div class="list-group mb-3">
                     @foreach ($optionLabels as $optionKey => $optionLabel)
                         @php
@@ -102,6 +111,7 @@
                         </div>
                     @endforeach
                 </div>
+                @endif
 
                 @if(! $question->selected_answer)
                     <p class="text-muted mb-0">You did not answer this question.</p>
@@ -111,8 +121,13 @@
     @empty
         <div class="card"><div class="card-body text-muted">You did not answer any questions in this Rush.</div></div>
     @endforelse
+    @include('partials.feedback-card', ['attempt' => $attempt])
     </div>
 @endsection
+
+@push('styles')
+    @if($attempt->isGame())<link href="{{ asset('css/games.css') }}" rel="stylesheet">@endif
+@endpush
 
 @push('scripts')
     @if($attempt->isRush() && $resultSound)

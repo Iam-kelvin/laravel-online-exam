@@ -7,11 +7,11 @@
         $remainingQuestions = $attempt->questions->whereNull('selected_answer');
         $streak = $attempt->questions->whereNotNull('selected_answer')->reverse()->takeWhile(fn ($question) => $question->is_correct)->count();
     @endphp
-    <div class="rush-shell">
+    <div class="rush-shell {{ $attempt->isGame() ? 'puzzle-rush' : '' }}">
         <header class="rush-toolbar">
             <div class="rush-heading">
-                <h1>&#9889; Rush exam</h1>
-                <p>{{ $attempt->examName() }}</p>
+                <h1>&#9889; {{ $attempt->isGame() ? $attempt->examName() : ($attempt->isLagosRush() ? 'Lagos Rush' : 'Rush exam') }}</h1>
+                <p>{{ $attempt->isGame() ? 'Solve as many as you can.' : $attempt->examName() }}</p>
             </div>
             <div class="rush-controls">
                 <button id="rushSoundToggle" type="button" class="btn btn-sm btn-outline-secondary" aria-pressed="false">Sound on</button>
@@ -30,6 +30,19 @@
                 <div class="card-body">
                     <p class="rush-question-number">Question {{ $question->position }}</p>
                     <h2 class="rush-question-title" tabindex="-1">{{ $question->question_text }}</h2>
+                    @if($question->isTyped())
+                        @include('partials.puzzle-prompt', ['question' => $question])
+                        <form class="game-answer-form" autocomplete="off">
+                            <label for="gameAnswer{{ $question->id }}">{{ $question->question_type === 'scramble' ? 'Your word' : 'Your phrase' }}</label>
+                            <div class="game-answer-controls">
+                                <input id="gameAnswer{{ $question->id }}" name="answer" type="text" class="form-control game-answer-input" maxlength="120" required
+                                    autocapitalize="none" autocorrect="off" spellcheck="false" enterkeyhint="done"
+                                    placeholder="{{ $question->question_type === 'scramble' ? 'Type the word' : 'Type the phrase' }}">
+                                <button type="submit" class="btn btn-success">Check answer</button>
+                                <button type="button" class="btn btn-outline-secondary" data-skip>Skip</button>
+                            </div>
+                        </form>
+                    @else
                     <div class="rush-options">
                         @foreach(['option_a' => 'A', 'option_b' => 'B', 'option_c' => 'C', 'option_d' => 'D'] as $option => $letter)
                             <button type="button" class="rush-option" data-answer="{{ $option }}">
@@ -37,6 +50,7 @@
                             </button>
                         @endforeach
                     </div>
+                    @endif
                     <p class="rush-feedback" role="status" aria-live="polite"></p>
                     <button type="button" class="rush-next btn btn-sm btn-primary" hidden>Next question &rarr;</button>
                 </div>
@@ -50,6 +64,12 @@
         </footer>
     </div>
 @endsection
+
+@push('styles')
+    @if($attempt->isGame())
+        <link href="{{ asset('css/games.css') }}" rel="stylesheet">
+    @endif
+@endpush
 
 @push('scripts')
     <script id="rushConfig" type="application/json">{!! json_encode([

@@ -38,6 +38,11 @@ class ReportCardController extends Controller
 
         abort_unless($attempt->submitted_at, 404);
 
+        if ($attempt->isGame()) {
+            return redirect()->route('games.start', [
+                'game' => $attempt->game_type, 'duration_seconds' => $attempt->duration_seconds,
+            ]);
+        }
         $subjectIds = $attempt->subjects->pluck('id')->all();
         abort_if(empty($subjectIds), 404);
 

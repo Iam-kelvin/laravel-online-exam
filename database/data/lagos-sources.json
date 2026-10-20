@@ -1,0 +1,23 @@
+{
+    "checked": "2026-10-08",
+    "notes": "Question prompts and distractors are original. Links support place names, route order, heritage and market context. Slang questions use common Lagos conductor expressions. Avoid fares, timetables, officeholders and operating hours, which change often.",
+    "sources": [
+        {"topic": "Blue Line station order", "url": "https://www.lamata-ng.com/our-schedule/"},
+        {"topic": "Red Line station order", "url": "https://lamata-ng.com/latest/our-schedule/red-line/"},
+        {"topic": "Isale Eko and Iga Idunganran", "url": "https://omoisaleekoonline.org/history-of-isale-eko/"},
+        {"topic": "Popo Aguda, Campos Square and Olowogbowo", "url": "https://en.wikipedia.org/wiki/Brazilian_Nigerians"},
+        {"topic": "Freedom Park and Broad Street Prison", "url": "https://freedomparklagos.com/"},
+        {"topic": "Katangua, Super bus stop and thrift trading", "url": "https://thewillnews.com/katangua-flea-market-for-all/"},
+        {"topic": "Oyingbo Market in Ebute Metta", "url": "https://businessday.ng/analysis/article/lagos-and-the-evolution-of-oyingbo-market/"},
+        {"topic": "Ladipo auto parts trade", "url": "https://journals.codesria.org/index.php/az/article/download/1782/1841/2005"},
+        {"topic": "Oko-Baba's historic timber trade", "url": "https://njp.unilag.edu.ng/index.php/UJTL/article/download/2253/1786/"},
+        {"topic": "IBILE and the five divisions", "url": "https://ibileholdings.com/"},
+        {"topic": "Eyo robes and opambata", "url": "https://ejesm.org/wp-content/uploads/2025/10/ejesm.v18i3.9.pdf"},
+        {"topic": "Jaekel House at the railway compound", "url": "https://farafinabooks.wordpress.com/2010/05/14/unveiling-of-mini-museum-jaekel-house-at-railway-compound/"},
+        {"topic": "Kalakuta Museum address and Fela", "url": "https://www.kalakutamuseum.com/about-us/"},
+        {"topic": "New Afrika Shrine", "url": "https://felakuti.com/legacy/new-afrika-shrine"},
+        {"topic": "Lekki Conservation Centre canopy walkway", "url": "https://ncfnigeria.org/lekki-conservation-centre-the-green-soul-of-lagos-metropolis/"},
+        {"topic": "J. Randle Centre in Onikan", "url": "https://www.jrandlecentre.com/events/"},
+        {"topic": "Bar Beach and Eko Atlantic reclamation", "url": "https://www.ekoatlantic.com/wp-content/uploads/2015/03/Eko-Atlantic-Brochure.pdf"}
+    ]
+}

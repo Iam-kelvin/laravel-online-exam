@@ -9,6 +9,7 @@ use App\Http\Controllers\Admin\SubjectController;
 use App\Http\Controllers\Admin\UsersController;
 use App\Http\Controllers\CommunityController;
 use App\Http\Controllers\ExamController;
+use App\Http\Controllers\GameController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\ImportExportController;
 use App\Http\Controllers\ReportCardController;
@@ -73,6 +74,10 @@ Route::group(['namespace' => 'App\Http\Controllers\Admin', 'middleware' => ['aut
 
 // Routes for exams and results
 Route::middleware(['auth'])->group(function () {
+    Route::get('/lagos-rush', [ExamController::class, 'lagosRush'])->name('exam.lagos-rush');
+    Route::get('/games', [GameController::class, 'index'])->name('games.index');
+    Route::get('/games/{game}', [GameController::class, 'start'])->name('games.start');
+    Route::post('/games/{game}', [GameController::class, 'store'])->name('games.store');
     Route::get('/exam/start', [ExamController::class, 'start'])->name('exam.start');
     Route::post('/exam/start', [ExamController::class, 'store'])->name('exam.store');
     Route::get('/exam/attempts/{attempt}', [ExamController::class, 'take'])->name('exam.take');

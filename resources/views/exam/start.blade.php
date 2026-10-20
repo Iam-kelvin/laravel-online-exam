@@ -5,6 +5,8 @@
         $mode = in_array(old('mode', $selectedMode), ['standard', 'rush']) ? old('mode', $selectedMode) : 'standard';
         $selectedIds = collect((array) old('subject_ids', $selectedSubjectIds))->map(fn ($id) => (int) $id);
         $selectedSubjects = $subjects->whereIn('id', $selectedIds);
+        $isLagosRush = $mode === 'rush' && $selectedSubjects->count() === 1
+            && ($selectedSubjects->first()->slug === 'lagos-street-knowledge' || strtolower($selectedSubjects->first()->name) === 'lagos street knowledge');
         $currentBank = old('bank_type', $selectedSubjects->first()?->bank_type ?? 'academic');
         $standardDuration = $selectedMode === 'rush' ? 300 : $selectedDuration;
         $durationUnit = old('duration_unit', $standardDuration % 60 !== 0 ? 'seconds' : 'minutes');
@@ -12,7 +14,7 @@
         $rushDuration = $mode === 'rush' ? max(15, min(180, (int) round(old('duration_seconds', $selectedDuration) / 15) * 15)) : 60;
         $subjectData = $subjects->map(fn ($subject) => [
             'id' => $subject->id, 'name' => $subject->name,
-            'type' => $subject->bank_type, 'description' => $subject->description,
+            'type' => $subject->bank_type, 'description' => $subject->description, 'slug' => $subject->slug,
         ])->values();
     @endphp
     <div class="exam-setup exam-room" data-mode="{{ $mode }}">
@@ -20,8 +22,8 @@
         <header class="room-page-heading">
             <div>
                 <p class="room-eyebrow">Practice room</p>
-                <h1>What are we practising?</h1>
-                <p>Pick your subjects. Make the challenge yours.</p>
+                <h1 id="setupHeading">{{ $isLagosRush ? 'Lagos Rush' : 'What are we practising?' }}</h1>
+                <p id="setupDescription">{{ $isLagosRush ? 'Your city. Your clock. Set your time and let’s go.' : 'Pick your subjects. Make the challenge yours.' }}</p>
             </div>
             <span class="room-brand-mark" aria-hidden="true">@include('partials.exam-icon', ['icon' => 'spark'])</span>
         </header>

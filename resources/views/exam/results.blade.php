@@ -27,7 +27,7 @@
                     @forelse ($examAttempts as $attempt)
                         <tr>
                             <td>#{{ $attempt->id }} @if($attempt->isRush()) <span class="badge badge-warning">Rush</span> @endif</td>
-                            <td>{{ $attempt->subjects->pluck('name')->join(', ') }}</td>
+                            <td>{{ $attempt->examName() }}</td>
                             <td>
                                 @if($attempt->submitted_at)
                                     {{ $attempt->score }} / {{ $attempt->question_count }}

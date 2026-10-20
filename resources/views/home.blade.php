@@ -1,21 +1,10 @@
 @extends('layouts.ap')
 
 @section('content')
-    <div class="learner-hero mb-4">
-        <div class="learner-hero-copy">
-            <p class="text-uppercase font-weight-bold mb-2">Dashboard</p>
-            <h1>Ready for your next practice run?</h1>
-            <p>Choose one subject or mix several together. CrazyExam will balance the questions, keep the timer steady, and save your result when you finish.</p>
-            <div class="dashboard-actions">
-                @if($stats['in_progress_attempt_id'])
-                    <a href="{{ route('exam.take', $stats['in_progress_attempt_id']) }}" class="btn btn-light">Resume Exam</a>
-                @endif
-                <a href="{{ route('exam.start') }}" class="btn btn-success">Start New Exam</a>
-                <a href="{{ route('exam.start', ['mode' => 'rush']) }}" class="btn btn-light">&#9889; Play Rush</a>
-                <a href="{{ route('exam.results') }}" class="btn btn-outline-light">View Results</a>
-            </div>
-        </div>
-    </div>
+    @include('partials.lagos-rush-hero')
+    @if($stats['in_progress_attempt_id'])
+        <div class="lagos-resume-row"><span>You have an exam in progress.</span><a href="{{ route('exam.take', $stats['in_progress_attempt_id']) }}" class="btn btn-outline-secondary">Resume Exam &rarr;</a></div>
+    @endif
 
     <div class="content-panel fact-panel fact-panel-prominent mb-4">
         <div class="panel-header">
@@ -36,6 +25,20 @@
         @else
             <div class="empty-state">Fresh facts will show here soon.</div>
         @endif
+    </div>
+
+    <div class="content-panel mb-4">
+        <div class="panel-header">
+            <div>
+                <h2 class="h5 mb-1">Fancy a brain break?</h2>
+                <p class="text-muted mb-0">Untangle words or solve picture puzzles against the clock.</p>
+            </div>
+            <a href="{{ route('games.index') }}" class="btn btn-sm btn-success">Play Games &rarr;</a>
+        </div>
+        <div class="dashboard-actions">
+            <a href="{{ route('games.start', 'word-scramble') }}" class="btn btn-outline-secondary">Word Scramble</a>
+            <a href="{{ route('games.start', 'picture-puzzles') }}" class="btn btn-outline-secondary">Picture Puzzles</a>
+        </div>
     </div>
 
     <div class="row">
@@ -168,7 +171,7 @@
                 <tbody>
                     @forelse ($recentAttempts as $attempt)
                         <tr>
-                            <td>{{ $attempt->subjects->pluck('name')->join(', ') }} @if($attempt->isRush()) <span class="badge badge-warning">Rush</span> @endif</td>
+                            <td>{{ $attempt->examName() }} @if($attempt->isRush()) <span class="badge badge-warning">Rush</span> @endif</td>
                             <td>{{ $attempt->submitted_at ? $attempt->score . ' / ' . $attempt->question_count : '-' }}</td>
                             <td>{{ $attempt->question_count }}</td>
                             <td>
