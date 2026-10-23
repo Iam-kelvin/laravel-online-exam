@@ -28,11 +28,12 @@ use App\Models\Subject;
 */
 
 Route::get('/', function () {
+    $stats = \Illuminate\Support\Facades\DB::query()
+        ->selectSub(Subject::where('active', true)->selectRaw('COUNT(*)'), 'subjects')
+        ->selectSub(Question::selectRaw('COUNT(*)'), 'questions')
+        ->first();
     return view('welcome', [
-        'stats' => [
-            'subjects' => Subject::where('active', true)->count(),
-            'questions' => Question::count(),
-        ],
+        'stats' => (array) $stats,
     ]);
 });
 
@@ -82,7 +83,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/exam/start', [ExamController::class, 'store'])->name('exam.store');
     Route::get('/exam/attempts/{attempt}', [ExamController::class, 'take'])->name('exam.take');
     Route::post('/exam/attempts/{attempt}/submit', [ExamController::class, 'submit'])->name('exam.submit');
-    Route::post('/exam/attempts/{attempt}/questions/{question}/answer', [ExamController::class, 'answer'])->name('exam.answer');
+    Route::post('/exam/attempts/{attempt}/questions/{question}/answer', [ExamController::class, 'answer'])->whereNumber(['attempt', 'question'])->name('exam.answer');
 });
 
 Route::middleware(['auth'])->group(function () {

@@ -37,7 +37,7 @@ class GameController extends Controller
                 'duration_seconds' => $validated['duration_seconds'],
                 'started_at' => now(), 'ends_at' => now()->addSeconds($validated['duration_seconds']),
             ]);
-            $questions->each(fn ($question, $index) => $attempt->questions()->create(
+            $attempt->addQuestionSnapshots($questions->map(fn ($question, $index) =>
                 array_merge($question, ['position' => $index + 1])
             ));
             $startedAt = now();

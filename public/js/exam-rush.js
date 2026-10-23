@@ -7,7 +7,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const finishButton = document.getElementById('rushFinishButton');
     const soundToggle = document.getElementById('rushSoundToggle');
     const notice = document.getElementById('rushNotice');
-    const started = performance.now();
+    let clockUpdatedAt = performance.now();
+    let remainingAtSync = config.remainingSeconds;
+    let checkingRemaining = null;
     let index = 0;
     let streak = Number(document.getElementById('rushStreak').textContent);
     let ending = false;
@@ -86,6 +88,8 @@ document.addEventListener('DOMContentLoaded', () => {
         // Let an answer already being saved settle before finalizing its score.
         if (pending) await pending;
         audio.stop();
+        // Back should return to setup after this POST, rather than a timed question.
+        window.history.replaceState(null, '', config.setupUrl);
         finishForm.submit();
     }
 
@@ -99,7 +103,7 @@ document.addEventListener('DOMContentLoaded', () => {
         clearTimeout(advanceTimeout);
         if (result.finished) {
             ending = true;
-            window.location.assign(result.review_url);
+            window.location.replace(result.review_url);
             return;
         }
         index += 1;
@@ -107,6 +111,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     async function markAnswer(card, payload) {
+        checkingRemaining = currentRemaining();
         const buttons = Array.from(card.querySelectorAll('.rush-option'));
         const controls = Array.from(card.querySelectorAll('.rush-option, .game-answer-form button, .game-answer-input'));
         controls.forEach(control => { control.disabled = true; });
@@ -114,7 +119,7 @@ document.addEventListener('DOMContentLoaded', () => {
         feedback.textContent = 'Checking…';
         notice.hidden = true;
         const controller = new AbortController();
-        const requestTimeout = setTimeout(() => controller.abort(), 10000);
+        const requestTimeout = setTimeout(() => controller.abort(), 20000);
         try {
             const response = await fetch(card.dataset.answerUrl, {
                 method: 'POST',
@@ -130,10 +135,13 @@ document.addEventListener('DOMContentLoaded', () => {
             const result = await response.json();
             if (response.status === 410 && result.review_url) {
                 ending = true;
-                window.location.assign(result.review_url);
+                window.location.replace(result.review_url);
                 return;
             }
             if (!response.ok) throw new Error(result.message || 'Could not save your answer.');
+            remainingAtSync = result.remaining_seconds;
+            clockUpdatedAt = performance.now();
+            checkingRemaining = null;
             if (ending) return;
 
             buttons.forEach(option => {
@@ -168,6 +176,7 @@ document.addEventListener('DOMContentLoaded', () => {
             notice.hidden = false;
             controls.forEach(control => { control.disabled = false; });
         } finally {
+            checkingRemaining = null;
             clearTimeout(requestTimeout);
         }
     }
@@ -196,11 +205,14 @@ document.addEventListener('DOMContentLoaded', () => {
         answerForm.querySelector('[data-skip]').addEventListener('click', () => save({ skip: true }));
     });
 
+    function currentRemaining() {
+        return checkingRemaining ?? Math.max(0, remainingAtSync - (performance.now() - clockUpdatedAt) / 1000);
+    }
     function tick() {
-        const remaining = Math.max(0, Math.ceil(config.remainingSeconds - (performance.now() - started) / 1000));
+        const remaining = Math.ceil(currentRemaining());
         document.getElementById('timer').textContent = `${String(Math.floor(remaining / 60)).padStart(2, '0')}:${String(remaining % 60).padStart(2, '0')}`;
         document.getElementById('rushTimerBox').classList.toggle('timer-urgent', remaining <= 10);
-        if (remaining <= 0) finishExam();
+        if (remaining <= 0 && !pending) finishExam();
     }
     showQuestion();
     tick();

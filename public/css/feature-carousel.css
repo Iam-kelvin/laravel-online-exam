@@ -48,13 +48,14 @@
 .feature-slide--lagos h2 > span { display: block; color: #f8cf57; margin-top: .15rem; }
 .feature-carousel-fallback { padding: 0 2rem 1rem; font-size: .8rem; }
 .feature-carousel-fallback a { color: #b4efcf; text-decoration: underline; }
-.feature-carousel--public { padding: 6.5rem 5vw 2.8rem; border: 0; border-radius: 0; margin: 0; }
+.feature-carousel--public { display: flex; flex-direction: column; min-height: 90vh; min-height: 90svh; padding: 6.5rem 5vw 3.5rem; border: 0; border-radius: 0; margin: 0; }
 .feature-carousel--public .feature-carousel-controls { max-width: 1260px; margin: 0 auto; padding: 0 0 .7rem; }
-.feature-carousel--public .feature-carousel-viewport { max-width: 1260px; margin: 0 auto; }
+.feature-carousel--public .feature-carousel-controls { width: 100%; }
+.feature-carousel--public .feature-carousel-viewport { flex: 1; width: 100%; max-width: 1260px; margin: 0 auto; }
 .feature-carousel--public .feature-slide-grid, .feature-carousel--public .feature-slide--lagos .lagos-feature-grid { padding: 1rem 0 1.8rem; min-height: 410px; gap: 3rem; }
 .feature-carousel--public .feature-slide--practice { background: none; }
 .feature-carousel--public:has(.feature-slide--practice:not([hidden])) { background: linear-gradient(90deg, rgba(10, 23, 42, .94), rgba(10, 23, 42, .72)), url('../images/exx1.jpg') center / cover; }
-.feature-carousel--public .feature-slide-copy h1, .feature-carousel--public .feature-slide-copy h2, .feature-carousel--public .feature-slide--lagos h2 { font-size: clamp(2.3rem, 4.6vw, 4rem); }
+.feature-carousel--public .feature-slide-copy h1, .feature-carousel--public .feature-slide-copy h2, .feature-carousel--public .feature-slide--lagos h2 { font-size: clamp(2.6rem, 5.3vw, 4.7rem); }
 .feature-carousel--public .feature-slide--rush, .feature-carousel--public .feature-slide--words, .feature-carousel--public .feature-slide--pictures { border-radius: 12px; }
 .feature-carousel--public .feature-slide:not(.feature-slide--practice):not(.feature-slide--lagos) .feature-slide-grid { padding-left: 1.5rem; padding-right: 1.5rem; }
 @media (max-width: 680px) {

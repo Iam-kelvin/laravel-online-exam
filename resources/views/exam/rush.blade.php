@@ -7,7 +7,7 @@
         $remainingQuestions = $attempt->questions->whereNull('selected_answer');
         $streak = $attempt->questions->whereNotNull('selected_answer')->reverse()->takeWhile(fn ($question) => $question->is_correct)->count();
     @endphp
-    <div class="rush-shell {{ $attempt->isGame() ? 'puzzle-rush' : '' }}">
+    <div class="rush-shell {{ $attempt->isGame() ? 'puzzle-rush' : '' }}" data-active-attempt>
         <header class="rush-toolbar">
             <div class="rush-heading">
                 <h1>&#9889; {{ $attempt->isGame() ? $attempt->examName() : ($attempt->isLagosRush() ? 'Lagos Rush' : 'Rush exam') }}</h1>
@@ -72,12 +72,16 @@
 @endpush
 
 @push('scripts')
+    @include('partials.attempt-navigation')
     <script id="rushConfig" type="application/json">{!! json_encode([
         'attemptId' => $attempt->id,
-        'remainingSeconds' => max(0, $attempt->ends_at->getTimestamp() - microtime(true)),
+        'remainingSeconds' => $attempt->remainingSeconds(),
         'wrongSounds' => $wrongSounds,
         'introSound' => $introSound,
         'reviewUrl' => route('exam.review', $attempt),
+        'setupUrl' => $attempt->isGame()
+            ? route('games.start', ['game' => $attempt->game_type, 'duration_seconds' => $attempt->duration_seconds])
+            : route('exam.start', ['mode' => $attempt->mode, 'duration_seconds' => $attempt->duration_seconds]),
     ], JSON_HEX_TAG | JSON_HEX_APOS | JSON_HEX_AMP | JSON_HEX_QUOT) !!}</script>
     <script src="{{ asset('js/rush-audio.js') }}" defer></script>
     <script src="{{ asset('js/exam-rush.js') }}" defer></script>

@@ -21,6 +21,7 @@ class ExamAttempt extends Model
         'question_count',
         'duration_seconds',
         'time_used_seconds',
+        'processing_time_ms',
         'started_at',
         'ends_at',
         'submitted_at',
@@ -70,6 +71,39 @@ class ExamAttempt extends Model
     public function isRush(): bool
     {
         return $this->mode === 'rush';
+    }
+
+    public function remainingSeconds(?\Illuminate\Support\Carbon $at = null): float
+    {
+        return max(0, (float) $this->ends_at->format('U.u')
+            + ($this->processing_time_ms ?? 0) / 1000
+            - (float) ($at ?? now())->format('U.u'));
+    }
+
+    public function scopeUnexpired($query)
+    {
+        $deadline = match ($this->getConnection()->getDriverName()) {
+            'sqlite' => "datetime(ends_at, '+' || (processing_time_ms / 1000.0) || ' seconds')",
+            'pgsql' => "ends_at + processing_time_ms * INTERVAL '1 millisecond'",
+            'sqlsrv' => 'DATEADD(millisecond, processing_time_ms, ends_at)',
+            default => 'TIMESTAMPADD(MICROSECOND, processing_time_ms * 1000, ends_at)',
+        };
+
+        return $query->whereRaw("{$deadline} > ?", [now()]);
+    }
+
+    public function addQuestionSnapshots(Collection $questions): void
+    {
+        // Keep JSON casts and timestamps while sending a whole batch in one insert.
+        foreach ($questions->chunk(200) as $chunk) {
+            $rows = $chunk->map(function (array $attributes) {
+                $question = $this->questions()->make($attributes);
+                $question->updateTimestamps();
+
+                return $question->getAttributes();
+            })->all();
+            ExamAttemptQuestion::insert($rows);
+        }
     }
 
     public function isGame(): bool

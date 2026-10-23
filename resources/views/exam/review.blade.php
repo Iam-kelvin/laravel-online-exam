@@ -130,6 +130,7 @@
 @endpush
 
 @push('scripts')
+    @include('partials.attempt-navigation')
     @if($attempt->isRush() && $resultSound)
         <script id="rushResultConfig" type="application/json">{!! json_encode([
             'attemptId' => $attempt->id, 'sound' => $resultSound,

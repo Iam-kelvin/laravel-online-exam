@@ -6,6 +6,7 @@ use App\Models\ExamAttempt;
 use App\Models\Subject;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 
 class LeaderboardService
 {
@@ -26,19 +27,46 @@ class LeaderboardService
 
     public function rankFor(ExamAttempt $attempt, ?Carbon $from = null): ?int
     {
-        if (! $attempt->submitted_at) {
+        if (! $attempt->submitted_at || ($from && $attempt->submitted_at->lt($from))) {
             return null;
         }
 
-        $ranked = $this->rankedAttempts($from);
-        $index = $ranked->search(fn (ExamAttempt $rankedAttempt) => $rankedAttempt->id === $attempt->id);
-
-        return $index === false ? null : $index + 1;
+        $percent = $attempt->scorePercent();
+        $time = $attempt->resolvedTimeUsedSeconds();
+        return 1 + DB::query()->fromSub($this->overallQuery($from)->reorder(), 'ranked')
+            ->where(function ($query) use ($attempt, $percent, $time) {
+                $query->where('rank_percent', '>', $percent)
+                    ->orWhere(fn ($q) => $q->where('rank_percent', $percent)->where('score', '>', $attempt->score))
+                    ->orWhere(fn ($q) => $q->where('rank_percent', $percent)->where('score', $attempt->score)->where('rank_time', '<', $time))
+                    ->orWhere(fn ($q) => $q->where('rank_percent', $percent)->where('score', $attempt->score)->where('rank_time', $time)->where('submitted_at', '<', $attempt->submitted_at))
+                    ->orWhere(fn ($q) => $q->where('rank_percent', $percent)->where('score', $attempt->score)->where('rank_time', $time)->where('submitted_at', $attempt->submitted_at)->where('id', '<', $attempt->id));
+            })->count();
     }
 
     private function topAttempts(?Carbon $from = null, ?Subject $subject = null, int $limit = 5): Collection
     {
+        if (! $subject) {
+            return $this->overallQuery($from)->with(['user', 'subjects'])->limit(max(0, $limit))->get();
+        }
         return $this->rankedAttempts($from, $subject)->take($limit)->values();
+    }
+
+    private function overallQuery(?Carbon $from)
+    {
+        $elapsed = match (DB::connection()->getDriverName()) {
+            'sqlite' => "ABS(CAST(strftime('%s', submitted_at) AS INTEGER) - CAST(strftime('%s', started_at) AS INTEGER))",
+            'pgsql' => 'ABS(EXTRACT(EPOCH FROM (submitted_at - started_at)))',
+            'sqlsrv' => 'ABS(DATEDIFF(second, started_at, submitted_at))',
+            default => 'ABS(TIMESTAMPDIFF(SECOND, started_at, submitted_at))',
+        };
+        $boundedTime = "CASE WHEN {$elapsed} < 1 THEN 1 WHEN {$elapsed} > duration_seconds THEN duration_seconds ELSE {$elapsed} END";
+
+        return ExamAttempt::query()->whereNotNull('submitted_at')
+            ->when($from, fn ($query) => $query->where('submitted_at', '>=', $from))
+            ->select('exam_attempts.*')
+            ->selectRaw('ROUND(CASE WHEN question_count > 0 THEN 100.0 * score / question_count ELSE 0 END) AS rank_percent')
+            ->selectRaw("COALESCE(time_used_seconds, CASE WHEN started_at IS NULL THEN duration_seconds ELSE {$boundedTime} END) AS rank_time")
+            ->orderByDesc('rank_percent')->orderByDesc('score')->orderBy('rank_time')->orderBy('submitted_at')->orderBy('id');
     }
 
     private function rankedAttempts(?Carbon $from = null, ?Subject $subject = null): Collection

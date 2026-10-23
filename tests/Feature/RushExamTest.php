@@ -7,6 +7,7 @@ use App\Models\Question;
 use App\Models\Subject;
 use App\Models\User;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 
 class RushExamTest extends TestCase
@@ -31,9 +32,15 @@ class RushExamTest extends TestCase
         $this->assertSame(60, $attempt->started_at->diffInSeconds($attempt->ends_at));
         $this->assertNull($attempt->exam_preset_id);
         $this->get(route('exam.take', $attempt))->assertOk()->assertDontSee('Rush exam');
-        $this->post(route('exam.submit', $attempt), [
-            'answers' => [$attempt->questions()->first()->id => 'option_a'],
-        ])->assertRedirect(route('exam.review', $attempt));
+        $answers = [$attempt->questions()->first()->id => 'option_a'];
+        DB::enableQueryLog();
+        DB::flushQueryLog();
+        try {
+            $this->post(route('exam.submit', $attempt), ['answers' => $answers])->assertRedirect(route('exam.review', $attempt));
+            $this->assertLessThanOrEqual(15, count(DB::getQueryLog()), 'Submitting 100 questions should not make 100 separate updates.');
+        } finally {
+            DB::disableQueryLog();
+        }
         $this->assertSame(1, $attempt->fresh()->score);
     }
 
@@ -121,6 +128,43 @@ class RushExamTest extends TestCase
         $this->assertSame(60, $attempt->fresh()->time_used_seconds);
         $this->assertNull($questions[1]->fresh()->selected_answer);
         $this->assertNotNull($attempt->fresh()->submitted_at);
+    }
+
+    public function test_server_grading_time_is_credited_once_and_client_timer_claims_are_ignored(): void
+    {
+        $attempt = $this->rush();
+        $question = $attempt->questions()->first();
+        $delayNextQuery = true;
+        DB::listen(function () use (&$delayNextQuery) {
+            if ($delayNextQuery) {
+                $delayNextQuery = false;
+                usleep(350000);
+            }
+        });
+        try {
+            $response = $this->postJson(route('exam.answer', [$attempt, $question]), [
+                'answer' => 'option_a', 'processing_time_ms' => 9999999, 'remaining_seconds' => 9999999,
+            ])->assertOk();
+        } finally {
+            $delayNextQuery = false;
+        }
+        $credited = $attempt->fresh()->processing_time_ms;
+        $this->assertGreaterThanOrEqual(350, $credited);
+        $this->assertLessThan(10000, $credited);
+        $this->assertGreaterThan(58, $response->json('remaining_seconds'));
+        $this->postJson(route('exam.answer', [$attempt, $question]), ['answer' => 'option_b'])
+            ->assertOk()->assertJson(['is_correct' => true, 'answered' => 1, 'score' => 1]);
+        $this->assertSame($credited, $attempt->fresh()->processing_time_ms);
+
+        // Credit survives reload and changes the authoritative deadline, not just the display.
+        $attempt->update(['processing_time_ms' => 10000]);
+        $this->travel(61)->seconds();
+        $this->get(route('exam.take', $attempt))->assertOk();
+        $this->get(route('home'))->assertOk()->assertViewHas('stats', fn ($stats) => $stats['in_progress_attempt_id'] === $attempt->id);
+        $next = $attempt->questions()->skip(1)->first();
+        $this->postJson(route('exam.answer', [$attempt, $next]), ['answer' => 'option_a'])->assertOk();
+        $this->travel(10)->seconds();
+        $this->postJson(route('exam.answer', [$attempt, $attempt->questions()->skip(2)->first()]), ['answer' => 'option_a'])->assertStatus(410);
     }
 
     public function test_finishing_rush_ignores_forged_form_answers(): void

@@ -13,7 +13,7 @@
         </div>
     </div>
 
-    <form id="exam-form" action="{{ route('exam.submit', $attempt) }}" method="POST">
+    <form id="exam-form" action="{{ route('exam.submit', $attempt) }}" method="POST" data-active-attempt data-finalize-attempt>
         @csrf
 
         @foreach ($attempt->questions as $question)
@@ -46,6 +46,7 @@
 @endsection
 
 @push('scripts')
+    @include('partials.attempt-navigation')
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             var remainingAtLoad = @json(max(0, $attempt->ends_at->getTimestamp() - microtime(true)));
@@ -67,6 +68,7 @@
                 }
 
                 submitted = true;
+                window.history.replaceState(null, '', @json(route('exam.start')));
                 form.submit();
             }
 

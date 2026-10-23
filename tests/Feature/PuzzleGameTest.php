@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\ExamAttempt;
 use App\Models\User;
 use Illuminate\Foundation\Testing\DatabaseTransactions;
+use Illuminate\Support\Facades\DB;
 use Tests\TestCase;
 
 class PuzzleGameTest extends TestCase
@@ -115,5 +116,40 @@ class PuzzleGameTest extends TestCase
         ])->assertRedirect(route('community.index'));
         $this->assertDatabaseHas('community_posts', ['category' => 'feedback', 'user_id' => $attempt->user_id]);
         $this->get('/community?feedback[]=bad')->assertOk();
+    }
+
+    public function test_finished_games_return_to_setup_and_cannot_be_reopened_or_remarked(): void
+    {
+        $attempt = $this->game('picture-puzzles');
+        $question = $attempt->questions()->first();
+        $this->get(route('exam.take', $attempt))->assertOk()
+            ->assertHeader('Cache-Control', 'max-age=0, no-store, private')
+            ->assertSee('attempt-navigation.js');
+        $this->postJson(route('exam.answer', [$attempt, $question]), ['skip' => true])->assertOk();
+        $this->post(route('exam.submit', $attempt))->assertRedirect(route('exam.review', $attempt));
+        $this->get(route('exam.take', $attempt))->assertRedirect(route('games.start', [
+            'game' => 'picture-puzzles', 'duration_seconds' => 60,
+        ]));
+        $this->get(route('exam.review', $attempt))->assertOk()->assertSee('attemptNavigation');
+        $this->postJson(route('exam.answer', [$attempt, $question]), ['answer' => $question->correct_answer])->assertStatus(410);
+        $this->assertSame('[Skipped]', $question->fresh()->selected_answer);
+        $this->assertSame(1, $attempt->user->examAttempts()->count());
+    }
+
+    public function test_game_creation_uses_a_bounded_number_of_database_requests(): void
+    {
+        $user = User::factory()->create();
+        $this->actingAs($user);
+        DB::enableQueryLog();
+        DB::flushQueryLog();
+        try {
+            $this->post(route('games.store', 'word-scramble'), ['duration_seconds' => 60])->assertSessionHasNoErrors();
+            $this->assertLessThanOrEqual(8, count(DB::getQueryLog()), 'Starting a game should not make one database request per word.');
+        } finally {
+            DB::disableQueryLog();
+        }
+        $attempt = $user->examAttempts()->firstOrFail();
+        $this->assertSame(72, $attempt->questions()->count());
+        $this->assertIsArray($attempt->questions()->first()->prompt_data);
     }
 }

@@ -32,14 +32,14 @@ class HomeController extends Controller
             ->take(5)
             ->get();
 
-        $completedAttempts = $user->examAttempts()->whereNotNull('submitted_at')->count();
+        $totals = $user->examAttempts()->whereNotNull('submitted_at')
+            ->selectRaw('COUNT(*) AS completed, COALESCE(SUM(score), 0) AS score_total, COALESCE(SUM(question_count), 0) AS question_total')
+            ->first();
         $inProgressAttempt = $user->examAttempts()
             ->whereNull('submitted_at')
-            ->where('ends_at', '>', now())
+            ->unexpired()
             ->latest()
             ->first();
-        $totalScore = $user->examAttempts()->whereNotNull('submitted_at')->sum('score');
-        $totalQuestions = $user->examAttempts()->whereNotNull('submitted_at')->sum('question_count');
         $bestAttempt = $user->examAttempts()
             ->whereNotNull('submitted_at')
             ->orderByDesc('score')
@@ -50,8 +50,8 @@ class HomeController extends Controller
 
         return view('home', [
             'stats' => [
-                'completed_attempts' => $completedAttempts,
-                'average_score' => $totalQuestions > 0 ? round(($totalScore / $totalQuestions) * 100) : null,
+                'completed_attempts' => (int) $totals->completed,
+                'average_score' => $totals->question_total > 0 ? round(($totals->score_total / $totals->question_total) * 100) : null,
                 'best_score' => $bestAttempt ? "{$bestAttempt->score} / {$bestAttempt->question_count}" : null,
                 'in_progress_attempt_id' => optional($inProgressAttempt)->id,
             ],
