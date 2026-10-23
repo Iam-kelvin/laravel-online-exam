@@ -12,6 +12,7 @@
     @include('partials.theme-head')
     <link href="{{ asset('css/exam.css') }}" rel="stylesheet">
     <link href="{{ asset('css/lagos-rush.css') }}" rel="stylesheet">
+    <link href="{{ asset('css/feature-carousel.css') }}" rel="stylesheet">
     @stack('styles')
 </head>
 <body>
@@ -103,6 +104,7 @@
 
     <script src="{{ asset('js/app.js') }}" defer></script>
     <script src="{{ asset('js/password-toggle.js') }}" defer></script>
+    <script src="{{ asset('js/feature-carousel.js') }}" defer></script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             var sidebarToggle = document.getElementById('sidebarCollapse');

@@ -1,7 +1,7 @@
 @extends('layouts.ap')
 
 @section('content')
-    @include('partials.lagos-rush-hero')
+    @include('partials.feature-carousel')
     @if($stats['in_progress_attempt_id'])
         <div class="lagos-resume-row"><span>You have an exam in progress.</span><a href="{{ route('exam.take', $stats['in_progress_attempt_id']) }}" class="btn btn-outline-secondary">Resume Exam &rarr;</a></div>
     @endif

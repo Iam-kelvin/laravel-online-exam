@@ -3,8 +3,7 @@
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Lagos Rush — Think you know Lagos? | CrazyExam</title>
-    <meta name="description" content="Think you know Lagos? Take Lagos Rush: a 60-second street knowledge challenge with instant marking, sound effects and a score to share.">
+    <title>CrazyExam</title>
     <link href="{{ asset('css/app.css') }}" rel="stylesheet">
     <style>
         body {
@@ -49,6 +48,59 @@
         .nav-link-public {
             color: #fff;
             font-weight: 700;
+        }
+
+        .hero {
+            align-items: center;
+            background-image: url("{{ asset('images/exx1.jpg') }}");
+            background-position: center;
+            background-size: cover;
+            display: flex;
+            min-height: 84vh;
+            padding: 7rem 5vw 4rem;
+            position: relative;
+        }
+
+        .hero::before {
+            background: linear-gradient(90deg, rgba(10, 23, 42, 0.86), rgba(10, 23, 42, 0.48));
+            content: "";
+            inset: 0;
+            position: absolute;
+        }
+
+        .hero-content {
+            color: #fff;
+            max-width: 760px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-kicker {
+            color: #a7f3d0;
+            font-weight: 800;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+        }
+
+        .hero h1 {
+            font-size: clamp(2.5rem, 6vw, 5.25rem);
+            font-weight: 800;
+            letter-spacing: 0;
+            line-height: 1;
+            margin-bottom: 1rem;
+        }
+
+        .hero p {
+            color: #d9e2ec;
+            font-size: 1.2rem;
+            margin-bottom: 1.5rem;
+            max-width: 640px;
+        }
+
+        .hero-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
         }
 
         .home-section {
@@ -164,6 +216,11 @@
                 gap: 0.75rem;
             }
 
+            .hero {
+                min-height: 88vh;
+                padding-top: 9rem;
+            }
+
             .story-panel {
                 grid-template-columns: 1fr;
             }
@@ -171,6 +228,7 @@
     </style>
     @include('partials.theme-head')
     <link href="{{ asset('css/lagos-rush.css') }}" rel="stylesheet">
+    <link href="{{ asset('css/feature-carousel.css') }}" rel="stylesheet">
 </head>
 <body>
     <header class="site-header">
@@ -191,13 +249,13 @@
         </nav>
     </header>
 
-    @include('partials.lagos-rush-hero', ['public' => true])
+    @include('partials.feature-carousel', ['public' => true])
 
     <main>
         <section class="home-section">
             <div class="stat-strip">
                 <div class="stat-card">
-                    <span>More Subjects To Explore</span>
+                    <span>Subjects To Practice</span>
                     <strong>{{ $stats['subjects'] }}</strong>
                 </div>
                 <div class="stat-card">
@@ -205,8 +263,8 @@
                     <strong>{{ $stats['questions'] }}</strong>
                 </div>
                 <div class="stat-card">
-                    <span>Lagos Rush</span>
-                    <strong>60 seconds</strong>
+                    <span>Your Pace</span>
+                    <strong>Any time</strong>
                 </div>
             </div>
         </section>
@@ -214,10 +272,9 @@
         <section class="home-section pt-0">
             <div class="story-panel">
                 <div class="story-copy">
-                    <h2>From “I know Lagos” to “see my score.”</h2>
-                    <p>Bus routes, market nicknames and the stories behind familiar places. Lagos Rush puts your street knowledge on the clock, one short question at a time.</p>
-                    <p>Get your answer marked immediately, hear the reaction and keep moving. When the clock runs out, share your score and challenge your friends.</p>
-                    <a href="{{ route('exam.lagos-rush') }}" class="btn btn-success">Take the Lagos challenge &rarr;</a>
+                    <h2>Turn pressure into practice.</h2>
+                    <p>The last few minutes of an exam can feel loud in your head. CrazyExam gives you a calmer way to train for that moment: choose what you want to practice, sit with a real countdown, and learn from the result.</p>
+                    <p>Start small when you are warming up. Mix subjects when you want a tougher challenge. Each attempt helps you understand where you are strong and where your next revision session should go.</p>
                 </div>
                 <div class="story-image" aria-hidden="true"></div>
             </div>
@@ -226,27 +283,32 @@
         <section class="home-section pt-0">
             <div class="feature-grid">
                 <article class="feature-card">
-                    <h3>How deep is your Lagos knowledge?</h3>
-                    <p>Go beyond the obvious with questions about old Lagos, local markets and the stops you pass every day.</p>
+                    <h3>Practice Your Way</h3>
+                    <p>Focus on one subject or mix subjects when you want a broader challenge.</p>
                 </article>
                 <article class="feature-card">
-                    <h3>Every answer gets a reaction</h3>
-                    <p>Instant marking, live scores and meme sounds keep the Rush moving. Play with sound or keep it muted.</p>
+                    <h3>Beat The Clock</h3>
+                    <p>Use timed practice to get comfortable with exam pressure before the real day.</p>
                 </article>
                 <article class="feature-card">
-                    <h3>Keep the challenge going</h3>
-                    <p>Try Word Scramble, Picture Puzzles or academic practice when you’re ready for another challenge.</p>
+                    <h3>Know Your Progress</h3>
+                    <p>Review your attempts and use each result to decide what to practice next.</p>
                 </article>
             </div>
         </section>
 
         <section class="home-section pt-0">
             <div class="final-cta">
-                <h2 class="h3">Lagos knows you. Do you know Lagos?</h2>
-                <p>Pick your time. Answer fast. Give your friends a score to beat.</p>
-                <a href="{{ route('exam.lagos-rush') }}" class="btn btn-success">Play Lagos Rush</a>
+                <h2 class="h3">Ready to practice smarter?</h2>
+                <p>Start with a short exam, learn from the result, then come back sharper.</p>
+                @auth
+                    <a href="{{ route('exam.start') }}" class="btn btn-success">Start Exam</a>
+                @else
+                    <a href="{{ route('register') }}" class="btn btn-success">Create Account</a>
+                @endauth
             </div>
         </section>
     </main>
+    <script src="{{ asset('js/feature-carousel.js') }}" defer></script>
 </body>
 </html>

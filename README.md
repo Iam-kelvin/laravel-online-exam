@@ -11,7 +11,7 @@ CrazyExam is a Laravel exam practice platform for timed subject-based exams. Lea
 - Compact subject selection with Academic and Challenge categories, Browse all subjects, and selected-subject chips. Rush keeps Finish Rush visible on mobile, and reviews show only answered questions.
 - A separate Games section: Word Scramble (72 words with clues) and Picture Puzzles (24 original SVG rebuses), with typed answers, Skip, 15–180-second timers, instant server marking and saved results.
 - A short, conversational Lagos Street Knowledge bank with 72 distinct questions, including markets, route order and old Lagos.
-- Lagos Rush leads the landing page and dashboard, with a permanent sidebar shortcut. `/lagos-rush` preserves the destination through login and opens the Lagos bank in Rush mode at 60 seconds; learners can adjust the clock before starting.
+- A five-slide homepage and dashboard banner starts with academic practice, followed by Lagos Rush, subject Rush, Word Scramble and Picture Puzzles. It supports arrows, dots, keyboard navigation, touch swipes and pausing; reduced-motion preferences disable automatic rotation. `/lagos-rush` remains a direct shortcut to the Lagos bank with an adjustable 60-second default.
 - A Drop feedback card on completed exams and games that opens a prefilled community feedback form.
 - Light and dark themes that follow the system setting initially and remember the learner's choice across pages.
 - Timed attempts, saved answers, results, and score history.
@@ -152,6 +152,12 @@ Run production migrations against Aiven once the database credentials are ready:
 ```bash
 php artisan migrate --force
 ```
+
+For the local `.env.aiven` connection, use `php artisan migrate:status --env=aiven` to check pending updates and `php artisan migrate --env=aiven --force` to apply them. Pushing PHP files does not update the database. The Rush `mode` column and puzzle question fields must be migrated before starting those attempts on a new deployment.
+
+In Vercel, use the **Other** framework preset and the repository's empty build command for this PHP application. `vercel.json` already sets `framework: null`; the dashboard may show a production/project settings mismatch while its project preset remains Vite. Aligning the preset and redeploying clears that mismatch. A Laravel 500 still needs its runtime exception investigated separately.
+
+The Vercel static-asset route includes `sounds` and `puzzles` as well as CSS, JS, fonts and images. Keep those paths ahead of the PHP catch-all so audio clips and SVG puzzles are served as files.
 
 ## Git Hygiene
 

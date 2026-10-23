@@ -2,7 +2,7 @@
     <div class="lagos-feature-grid">
         <div class="lagos-feature-copy">
             <p class="lagos-feature-kicker">@include('partials.exam-icon', ['icon' => 'bolt']) Lagos Rush <span>Street knowledge. On the clock.</span></p>
-            <h1 id="lagosRushHeading">Think you know Lagos?<span>Oya, prove it.</span></h1>
+            <{{ !empty($embedded) ? 'h2' : 'h1' }} id="lagosRushHeading">Think you know Lagos?<span>Oya, prove it.</span></{{ !empty($embedded) ? 'h2' : 'h1' }}>
             <p class="lagos-feature-description">Bus stops, markets, old Lagos. How many can you get right in 60 seconds?</p>
             <div class="lagos-feature-actions">
                 <a href="{{ route('exam.lagos-rush') }}" class="btn lagos-play-button" data-lagos-launch>Play Lagos Rush @include('partials.exam-icon', ['icon' => 'arrow'])</a>
